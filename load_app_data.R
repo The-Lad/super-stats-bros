@@ -3,7 +3,8 @@ char_colors <- readxl::read_excel('data/smash_colors.xlsx', sheet = 'Characters'
 
 char_stats = readRDS('data/char_stats.rds')
 
-all_plot_vars = setdiff(colnames(char_stats), c('character', 'color', 'series_color', 'icon_path',  'icon_url_path'))
+all_plot_vars = setdiff(setdiff(colnames(char_stats), c('character', 'color', 'series_color', 'icon_path',  'icon_url_path')), 
+                        c('jumpsquat', 'gravity', 'tether', 'wall_cling', 'wall_jump', 'hard_landing_lag', 'fh_air_time', 'max_jumps', 'sh_air_time', 'soft_landing_lag'))
 
 js_searchbox = "function() {
             var chart = this,
