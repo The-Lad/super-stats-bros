@@ -68,7 +68,7 @@ server <- function(input, output, session) {
                     xvar = !!paste0(input$xvar_input, '_mean'), xvar_sd = !!paste0(input$xvar_input, '_sd')) %>% 
              arrange(name) %>% 
              mutate(color = if(input$tier_color_scheme) {tier_cols_dg} else {tier_cols_bg}, image = tier_images) %>%
-             do(., if(input$img_markers) {mutate(., marker = purrr::map(image, ~ list(symbol = sprintf("url(%s)", .x), width = 16, height = 16)))} else {.}) 
+             do(., if(input$img_markers) {mutate(., marker = purrr::map(image, ~ list(symbol = sprintf("url(%s)", .x), width = 32, height = 32)))} else {.}) 
         
         } else {
       char_stats %>%
@@ -76,7 +76,7 @@ server <- function(input, output, session) {
              #group := ifelse(input$tier_boxplot, !!'tier', one_of('you_get_nothing_you_lose'))) %>%
       filter_all(all_vars(!is.na(.))) %>%
       mutate(color = toupper(color)) %>%
-      do(., if(input$img_markers) {mutate(., marker = purrr::map(image, ~ list(symbol = sprintf("url(%s)", .x), width = 16, height = 16)))} else {.}) %>% 
+      do(., if(input$img_markers) {mutate(., marker = purrr::map(image, ~ list(symbol = sprintf("url(%s)", .x), width = 32, height = 32)))} else {.}) %>% 
       arrange(name)
       }
     
@@ -92,6 +92,7 @@ server <- function(input, output, session) {
       hc_xAxis(title = list(text = input$xvar_input))%>%
       hc_yAxis(title = list(text = input$yvar_input))%>%
       hc_plotOptions(series = list(allowPointSelect= TRUE)) %>%
+      hc_chart(zoomType = 'xy') %>% 
       hc_add_event_point(event = "click") %>%
       #hc_add_event_point(event = "mouseOut") %>%
       hc_add_series(data = if (is.null(input$main_datatable_rows_selected) | input$tier_boxplot) {NULL}
