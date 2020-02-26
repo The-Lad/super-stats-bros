@@ -7,14 +7,29 @@ all_plot_vars = setdiff(setdiff(colnames(char_stats), incomplete_cols), c('chara
 
 number_of_rows_dt = 10
 
-if (anyNA(filter(char_stats, !is.na(tier) & !character %in% c('Byleth', 'Pokemon Trainer')))) stop('Unexpected missing values in char_list')
+if (anyNA(filter(select(char_stats, character, all_plot_vars, -initial_dash), !is.na(tier) & !character %in% c('Byleth', 'Pokemon Trainer')))) stop('Unexpected missing values in char_list')
+tier_cols_dg = c("#6B4804","#7F5515", '#907554' , "#CD7F32", "#C0C0C0", "#FFD700") # poop brown
+tier_cols_bg = RColorBrewer::brewer.pal('Spectral',n=6)
+#tier_images = c('https://i.redd.it/evp0pg3dmhg31.jpg', 'https://steamuserimages-a.akamaihd.net/ugc/921420320507613852/BA5F18024E735461C5131382A8D3E19D93A100A9/?imw=1024&imh=576&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true',
+#                'https://www.grandforksherald.com/incoming/article1187449.ece/alternates/BASE_LANDSCAPE/Kernel%20Cobb%20at%20Concordia','https://i.ytimg.com/vi/8HSy1ct1QhI/maxresdefault.jpg', 'https://mat3e.github.io/brains/img/6.jpg',
+#                'data:image/jpeg;base64,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')
+
+tier_images = c(
+  'https://static-cdn.jtvnw.net/emoticons/v1/300978616/3.0', #stinky
+  'https://static-cdn.jtvnw.net/emoticons/v1/425618/1.0', #lul
+  'https://static-cdn.jtvnw.net/emoticons/v1/300654653/1.0', #daHeck 
+  'https://static-cdn.jtvnw.net/emoticons/v1/1431656/1.0', #expand
+  'https://static-cdn.jtvnw.net/emoticons/v1/1708436/1.0',
+  'https://static-cdn.jtvnw.net/emoticons/v1/120195/1.0' #hboxKrey
+)
 
 tier_stats = char_stats %>%
   select(all_plot_vars) %>% 
   filter(!is.na(tier)) %>% 
   group_by(tier) %>% 
   summarise_all(.funs = list(mean = ~ mean(x = ., na.rm = TRUE),
-                             sd = ~ sd(x = ., na.rm = TRUE)))
+                             sd = ~ sd(x = ., na.rm = TRUE))) %>% 
+  mutate_if(is.numeric, round, 3)
 
 
 
