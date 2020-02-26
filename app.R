@@ -11,7 +11,7 @@ library(DT)
 library(dplyr)
 #source("imageBoxFunctions.R", local = TRUE)
 
-if (file.exists('data/char_stats.rds')) {
+if (file.exists('data/dont_commit/char_stats.rds')) {
   source('load_app_data.R')
 } else {
   source('compile_data.R')

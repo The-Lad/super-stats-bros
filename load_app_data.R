@@ -1,7 +1,7 @@
 source('data_constants.R')
-#char_colors <- readxl::read_excel('data/smash_colors.xlsx', sheet = 'Characters')
+#char_colors <- readxl::read_excel('data/dont_commit/smash_colors.xlsx', sheet = 'Characters')
 
-char_stats = readRDS('data/char_stats.rds')
+char_stats = readRDS('data/dont_commit/char_stats.rds')
 incomplete_cols =  c('crawl', 'jumpsquat', 'gravity', 'tether', 'wall_cling', 'wall_jump', 'hard_landing_lag', 'fh_air_time', 'max_jumps', 'sh_air_time', 'soft_landing_lag')
 all_plot_vars = setdiff(setdiff(colnames(char_stats), incomplete_cols), c('character', 'color', 'series_color', 'icon_path',  'icon_url_path'))
 

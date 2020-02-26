@@ -40,10 +40,10 @@ char_attrs[char_attrs$character %in% c('Popo', 'Nana'), c('usage', 'win_ratio', 
 if ('background_colors' %in% ls()) {
   char_attrs = left_join(char_attrs, background_colors)
   char_attrs$color[is.na(char_attrs$color)] = "#FFFFFF"
-} else if (file.exists('data/smash_colors.xlsx')) {
-  char_colors <- readxl::read_excel('data/smash_colors.xlsx', sheet = 'Characters')
+} else if (file.exists('data/dont_commit/smash_colors.xlsx')) {
+  char_colors <- readxl::read_excel('data/dont_commit/smash_colors.xlsx', sheet = 'Characters')
   char_attrs = left_join(char_attrs, select(char_colors, character = CHARACTER, color = `Colour hex code`, series_color = `Series colour`))
   char_attrs$color[is.na(char_attrs$color)] = "#FFFFFF"
 }
 
-saveRDS(char_attrs, 'data/char_stats.rds')
+saveRDS(char_attrs, 'data/dont_commit/char_stats.rds')

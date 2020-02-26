@@ -81,7 +81,7 @@ char_stats = left_join(char_stats, tibble::enframe(icons, "CHARACTER", "ICON URL
 
 char_stats$CHARACTER = proper_names
 
-char_colors = readxl::read_excel('data/smash_colors.xlsx', sheet = 'Characters') %>% 
+char_colors = readxl::read_excel('data/dont_commit/smash_colors.xlsx', sheet = 'Characters') %>% 
   select(-Fighter, -`CSS code`)
 #char_stats = char_stat
 
