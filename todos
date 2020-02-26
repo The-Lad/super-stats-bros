@@ -1,2 +1,15 @@
 TODO
-Round win ratio
+# MUST
+Get tier list data
+Predict tier list model
+
+# WANT
+Local icons working
+Tier list model functionality in app
+
+# POSSIBLES
+Tier list model runs and predicts on character of user's design (incl photo they add- can't use usage, tournament etc in this case)
+Head to head comparison
+Option for icons as pics
+Series fighters comparison (plotting points in clusters, plotting mean & sds of stats)
+Top Trumps style game

@@ -6,9 +6,10 @@ library(stringr)
 source('data_constants.R', encoding = 'UTF-8')
 
 source('load/get_char_attr_data.R')
-source('load/get_icons.R')
 source('load/get_usage_and_winning.R')
 source('load/get_tournament_results.R')
+source('load/get_tier_list.R')
+source('load/get_icons.R')
 source('load/get_colors.R')
 
 char_attrs = full_join(char_attrs, tibble::enframe(usage, "character", "usage"))
@@ -26,6 +27,9 @@ char_attrs = left_join(char_attrs, top_player_chars, by = c('character' = '.'))
 char_attrs$tournament_win_freq[is.na(char_attrs$tournament_win_freq)] = 0
 char_attrs$top_player_freq[is.na(char_attrs$top_player_freq)] = 0
 
+# Add PGR Top 50 7.0.0 tier list from Feb 19 2020
+if ('tier_list' %in% ls()) char_attrs = left_join(char_attrs, select(tier_list, -raw))
+
 # Add local and URL paths to character icons
 char_attrs = left_join(char_attrs, tibble::enframe(files, "character", "icon_path"))
 char_attrs = left_join(char_attrs, tibble::enframe(icons, "character", "icon_url_path"))
@@ -35,11 +39,11 @@ char_attrs[char_attrs$character %in% c('Popo', 'Nana'), c('usage', 'win_ratio', 
 
 if ('background_colors' %in% ls()) {
   char_attrs = left_join(char_attrs, background_colors)
-  char_attrs$color[is.na(char_attrs$color)] = "#000000"
+  char_attrs$color[is.na(char_attrs$color)] = "#FFFFFF"
 } else if (file.exists('data/smash_colors.xlsx')) {
   char_colors <- readxl::read_excel('data/smash_colors.xlsx', sheet = 'Characters')
   char_attrs = left_join(char_attrs, select(char_colors, character = CHARACTER, color = `Colour hex code`, series_color = `Series colour`))
-  char_attrs$color[is.na(char_attrs$color)] = "#000000"
+  char_attrs$color[is.na(char_attrs$color)] = "#FFFFFF"
 }
 
 saveRDS(char_attrs, 'data/char_stats.rds')

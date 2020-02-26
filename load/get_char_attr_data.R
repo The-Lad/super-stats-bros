@@ -53,7 +53,8 @@ char_api = char_api %>%
 char_attrs = char_attrs %>%
   left_join(char_api) %>%
   full_join(filter(char_api, character %in% missing_chars)) %>% 
-  mutate_if(is.numeric, function(x) { ifelse(is.na(x) & .$character %in% c('Popo', 'Nana'), x[.$character == 'Ice Climbers'], x) }) 
+  mutate_if(is.numeric, function(x) ifelse(is.na(x) & .$character %in% c('Popo', 'Nana'), x[.$character == 'Ice Climbers'], x)) %>%  
+  mutate_if(is.numeric, function(x) ifelse(is.na(x) & .$character == 'Ice Climbers', x[.$character == 'Popo'], x) ) 
 
 #stringdist::stringdist(names(mapped_names), mapped_names) #RecordLinkage::levenshteinSim
 #names(mapped_names) = paste0('^', names(mapped_names), '$')
