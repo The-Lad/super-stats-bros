@@ -1,5 +1,5 @@
 source('data_constants.R')
-char_colors <- readxl::read_excel('data/smash_colors.xlsx', sheet = 'Characters')
+#char_colors <- readxl::read_excel('data/smash_colors.xlsx', sheet = 'Characters')
 
 char_stats = readRDS('data/char_stats.rds')
 

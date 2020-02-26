@@ -1,7 +1,7 @@
-library(rvest)
-library(jsonlite)
-library(dplyr)
-source('data_constants.R')
+# library(rvest)
+# library(jsonlite)
+# library(dplyr)
+#source('data_constants.R')
 
 
 # Get some from the site
@@ -38,7 +38,7 @@ char_raw = httr::GET('https://api.kuroganehammer.com/api/movements?game=ultimate
 char_json = jsonlite::fromJSON(httr::content(char_raw, 'text'), flatten = TRUE)
 char_api = as_tibble(char_json)
 
-missing_chars = setdiff(char_list, char_attrs$character)
+missing_chars = setdiff(char_list$app_names, char_attrs$character)
 
 char_api = char_api %>%
   #filter(Owner %in% missing_chars) %>%
