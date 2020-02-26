@@ -21,8 +21,8 @@ tier_images = c(
   'https://static-cdn.jtvnw.net/emoticons/v1/425618/1.0', #lul
   'https://static-cdn.jtvnw.net/emoticons/v1/300654653/1.0', #daHeck 
   'https://static-cdn.jtvnw.net/emoticons/v1/1431656/1.0', #expand
-  'https://static-cdn.jtvnw.net/emoticons/v1/1708436/1.0',
-  'https://static-cdn.jtvnw.net/emoticons/v1/120195/1.0' #hboxKrey
+  'https://static-cdn.jtvnw.net/emoticons/v1/140967/1.0', # hbox
+ ' https://static-cdn.jtvnw.net/emoticons/v1/300067189/1.0' #rip hboxKrey 'https://static-cdn.jtvnw.net/emoticons/v1/120195/1.0'
 )
 
 tier_stats = char_stats %>%

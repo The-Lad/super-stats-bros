@@ -57,6 +57,9 @@ server <- function(input, output, session) {
   
   observeEvent(input$tier_boxplot, {
     toggle('tier_color_scheme')
+   
+    tableProxy %>%
+      selectRows('')
   })
   
   
@@ -84,17 +87,15 @@ server <- function(input, output, session) {
   })
   
   main_hc <- reactive({
-    #if(input$img_markers) browser()
     hchart(reactive_dataset(), type = 'scatter',
            hcaes(y = yvar, x = xvar, color = color, name = name, image =  image)) %>% 
-          # marker = list(width = ifelse(input$img_markers, 16, 'undefined'), height = ifelse(input$img_markers, 16, 'undefined'))) %>%
       hc_legend(enabled = FALSE) %>%
       hc_xAxis(title = list(text = input$xvar_input))%>%
       hc_yAxis(title = list(text = input$yvar_input))%>%
-      hc_plotOptions(series = list(allowPointSelect= TRUE)) %>%
+      hc_plotOptions(series = list(allowPointSelect= FALSE)) %>%
       hc_chart(zoomType = 'xy') %>% 
       hc_add_event_point(event = "click") %>%
-      #hc_add_event_point(event = "mouseOut") %>%
+      #hc_add_event_point(event = "unselect") %>%
       hc_add_series(data = if (is.null(input$main_datatable_rows_selected) | input$tier_boxplot) {NULL}
                     else {select(reactive_dataset()[input$main_datatable_rows_selected, ], x= xvar, y = yvar, color, name, image)},
                     type = 'scatter', marker = list(radius = 30, lineColor = '#32CD32', lineWidth = 5)) %>%
@@ -102,7 +103,6 @@ server <- function(input, output, session) {
                  formatter= JS("function() {return (this.point.name + '<span style=\"color: this.point.color\"></br>y: <b>' + this.point.y + '</b> </br> x: <b>' +
    this.point.x + '</b></span></br><img src=\"'+ this.point.image + '\"width=\"48\" height=\"48\"/></br>');}")) %>%
       hc_add_theme(hc_theme_chalk())
-
     #slice(reactive_dataset(), 0)
   })
   
@@ -116,6 +116,10 @@ server <- function(input, output, session) {
   }, server = TRUE)
   
   tableProxy <-  dataTableProxy("main_datatable")
+  
+  # observeEvent(input$main_plot_unselect, {
+  # browser()
+  #   })
   
   observeEvent(input$main_plot_click, {
     if (input$main_plot_click$series == 'Series 1') {
