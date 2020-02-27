@@ -4,13 +4,15 @@ Get tier list data
 Predict tier list model
 Fix data table for tiers
 Fix data table for images as markers once clicked (circle)
-Fix error with circle lingering
-Fix error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
-Fix circle hiding image markers
+Fix error with circle lingering (where?)
+Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick'
+  example Fix error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 
 # WANT
 Local icons working
 Tier list model functionality in app
+Super Smash bros font for Super Stats Bros
+Rest of announcer clips
 
 # POSSIBLES
 Tier list model runs and predicts on character of user's design (incl photo they add- can't use usage, tournament etc in this case)
@@ -20,3 +22,4 @@ Series fighters comparison (plotting points in clusters, plotting mean & sds of 
 Top Trumps style game
 
 # DONE
+Fixed circle hiding image markers
