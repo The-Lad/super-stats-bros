@@ -153,14 +153,14 @@ server <- function(input, output, session) {
     if (input$main_plot_click$series == 'Series 1') {
       charId = which(reactive_dataset()$name == input$main_plot_click$name)
       
-      sound_clip =  str_subset(list.files('www/audio/announcer/'), reactive_dataset()[charId,]$name )
-      
-      if (length(sound_clip) == 1) {
-      insertUI(selector = "#playsound",
-               where = "afterEnd",
-               ui = tags$audio(src = paste0('audio/announcer/', sound_clip), type = paste0("audio/", str_extract(sound_clip, '\\..+$')), 
-                               autoplay = NA, controls = NA, style="display:none;"))
-      }
+      # sound_clip =  str_subset(list.files('www/audio/announcer/'), reactive_dataset()[charId,]$name )
+      # 
+      # if (length(sound_clip) == 1) {
+      # insertUI(selector = "#playsound",
+      #          where = "afterEnd",
+      #          ui = tags$audio(src = paste0('audio/announcer/', sound_clip), type = paste0("audio/", str_extract(sound_clip, '\\..+$')), 
+      #                          autoplay = NA, controls = NA, style="display:none;"))
+      # }
       
       tableProxy %>% 
         selectRows(charId) %>%
