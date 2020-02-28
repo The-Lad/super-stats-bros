@@ -12,6 +12,7 @@ old_sources = c('64' ='https://www.sounds-resource.com/nintendo_64/supersmashbro
                 'Smash4'= 'https://www.sounds-resource.com/wii_u/supersmashbrosforwiiu/sound/4384/',
                 'Ultimate'  = 'https://www.sounds-resource.com/nintendo_switch/supersmashbrosultimate/sound/16070/')
 
+data <- list()
 for (game in names(games)) {
   if (!file.exists(paste0('data/dont_commit/', game,'.zip'))){
     tryCatch({
@@ -26,13 +27,15 @@ for (game in names(games)) {
         read_html()
     }
     )
-    
+    #temp <- tempfile()
     narrator %>% 
       html_nodes('#content a') %>%
       .[str_which(html_text(.), '[D|d]ownload')] %>% 
       html_attr('href') %>% 
       paste0(site,.) %>% 
-      download.file(destfile = paste0('data/dont_commit/', game,'.zip'))
+      download.file(destfile = paste0('data/dont_commit/', game,'.zip'), mode = 'wb')
+    #temp
+    
   }
 }
 
