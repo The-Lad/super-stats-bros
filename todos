@@ -4,7 +4,7 @@ Get tier list data
 Predict tier list model
 Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 Commented code
-A lot of plots may be missing Pokemon Trainer as there are Squirtle, Ivysaur and Charizard. Fix in future- get Squirtle, Ivysaur, Charizard but NA them for all that Trainer is non-NA for.
+
 
 
 # WANT
@@ -31,3 +31,5 @@ Disable x and y var being the same
 DLC character announcer
 Set a zoom limit to prevent the singularity from consuming us all
 Zooming in w/ icons as points without zooming in on the actual poins is quite glitchy (CANT REPRODUCE)
+Show plot omissions
+A lot of plots may be missing Pokemon Trainer as there are Squirtle, Ivysaur and Charizard. Fix in future- get Squirtle, Ivysaur, Charizard but NA them for all that Trainer is non-NA for.

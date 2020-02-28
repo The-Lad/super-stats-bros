@@ -1,7 +1,23 @@
 # UI functions
 ui<- dashboardPage(
   #setBackgroundColor("#FFFFFF"),
-  dashboardHeader(title = 'SUPER STATS BROS'),
+  dashboardHeader(title = span(tags$img(
+    src = 'img/super stats bros.png',
+    title = "Title", height = "20px",
+    alt = "SUPER STATS BROS"
+  )),
+  
+  tags$li(
+    a(
+      href = 'https://www.harmonic.co.nz/',
+      img(
+        src = 'img/harmonic_logo.png', alt = "Made by Harmonic",
+        title = "Company Home", height = "50px"),
+      style = "padding-top:0px; padding-bottom:0px;"),
+    class = "dropdown",
+    style = "padding-left: 0vw;"
+  )
+  ), 
   dashboardSidebar(
     selectInput('xvar_input', label = 'Choose x variable:',
                 choices = setdiff(all_plot_vars, 'tier'),
@@ -24,7 +40,6 @@ ui<- dashboardPage(
     selectInput('hide_me', label = '', choices = '')
   ), 
   dashboardBody(
-    #titlePanel('SUPER STATS BROS'),
     box(
       highchartOutput('main_plot'),
       textOutput('omitted'),
@@ -36,5 +51,8 @@ ui<- dashboardPage(
       width = 12
     )
   ),
+  # tags$head(
+  #   includeCSS("fonts.css")
+  # ),
   shinyjs::useShinyjs()
 )

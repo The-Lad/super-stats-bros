@@ -1,5 +1,5 @@
 icon_page = read_html('http://www.ssbwiki.com/Category:Head_icons_(SSBU)')
-icons = icon_page %>% html_nodes('img') %>% html_attr('src') %>% str_subset('Mii|120px')
+icons = icon_page %>% html_nodes('img') %>% html_attr('src') %>% str_subset('120px|Mii|Charizard|Squirtle|Ivysaur')
 files = paste0('pics/', str_extract(icons, '[^/]+$'))
 
 if (!dir.exists('pics')) dir.create('pics')
