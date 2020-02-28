@@ -33,7 +33,7 @@ tier_stats = char_stats %>%
                              sd = ~ sd(x = ., na.rm = TRUE))) %>% 
   mutate_if(is.numeric, round, 3)
 
-
+chr <- function(n) { rawToChar(as.raw(n)) }
 
 #hchart(tier_stats, hcaes(y = usage_mean, x = tier), type = 'scatter') %>% hc_add_series(data = mutate(tier_stats, high = usage_mean + usage_sd, low = usage_mean - usage_sd), type = "errorbar",color = "red", stemWidth = 1,  whiskerLength = 1)
 

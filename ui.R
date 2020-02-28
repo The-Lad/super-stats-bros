@@ -19,6 +19,11 @@ ui<- dashboardPage(
   )
   ), 
   dashboardSidebar(
+    tags$script('
+    $(document).on("keypress", function (e) {
+       Shiny.onInputChange("keyseq", e.which);
+    });
+  ') ,
     selectInput('xvar_input', label = 'Choose x variable:',
                 choices = setdiff(all_plot_vars, 'tier'),
                 selected = 'air_speed'),
@@ -37,22 +42,33 @@ ui<- dashboardPage(
     prettyCheckboxGroup('enabled_sounds', label = 'Use which sounds? (Older preferred)', shape = 'curve',
                         choices = c('N64' = 'n64_sounds', 'Melee' = 'melee_sounds', 'Brawl' = 'brawl_sounds', 'Smash4' = 'smash4_sounds', 'Ultimate' = 'ultimate_sounds'),
                         selected = 'ultimate_sounds'),
-    selectInput('hide_me', label = '', choices = '')
+    textOutput('last_key'),
+    # tags$head(
+    #   tags$style(HTML("#hide_me{background-color:'#526980'}"))
+    # ),
+    actionButton('hide_me', label = '',
+    style = "color: black;
+                     background-color: #222d32;
+                     position: relative;
+                     height: 4px;
+                     width: 4px;
+                     border-radius: 0px;
+                     border-width: 0px")
   ), 
-  dashboardBody(
-    box(
-      highchartOutput('main_plot'),
-      textOutput('omitted'),
-      background = "green",
-      width = 12
-    ),
-    box(
-      dataTableOutput('main_datatable'),
-      width = 12
-    )
+dashboardBody(
+  box(
+    highchartOutput('main_plot'),
+    textOutput('omitted'),
+    background = "green",
+    width = 12
   ),
-  # tags$head(
-  #   includeCSS("fonts.css")
-  # ),
-  shinyjs::useShinyjs()
+  box(
+    dataTableOutput('main_datatable'),
+    width = 12
+  )
+),
+# tags$head(
+#   includeCSS("fonts.css")
+# ),
+shinyjs::useShinyjs()
 )

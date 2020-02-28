@@ -17,7 +17,8 @@ old_sources = c('N64' ='https://www.sounds-resource.com/nintendo_64/supersmashbr
                 'Smash4'= 'https://www.sounds-resource.com/wii_u/supersmashbrosforwiiu/sound/4384/',
                 'Ultimate'  = 'https://www.sounds-resource.com/nintendo_switch/supersmashbrosultimate/sound/16070/')
 
-data <- list()
+if (!dir.exists('data/dont_commit')) dir.create('data/dont_commit')
+
 for (game in names(games)) {
   if (!file.exists(paste0('data/dont_commit/', game,'.zip'))){
     tryCatch({
@@ -44,6 +45,9 @@ for (game in names(games)) {
   }
 }
 
+if (!dir.exists('www/')) dir.create('www/')
+if (!dir.exists('www/audio')) dir.create('www/audio')
+if (!dir.exists('www/audio/announcer')) dir.create('www/audio/announcer')
 
 unzip('data/dont_commit/N64.zip', files = as.vector(char_list$n64_sounds[char_list$n64_sounds != ""]), exdir = 'www/audio/announcer/n64')
 unzip('data/dont_commit/Melee.zip', files = as.vector(char_list$melee_sounds[char_list$melee_sounds != ""]), exdir = 'www/audio/announcer/melee')
@@ -54,32 +58,19 @@ unzip('data/dont_commit/Ultimate.zip', files = as.vector(char_list$ultimate_soun
 unzip('data/dont_commit/Melee.zip', files = melee_bonuses, exdir = 'www/audio/announcer/melee')
 
 
-# DLC chars...
-
-
-
-###
-#mp3s <- httr::GET('https://www.sounds-resource.com/gamecube/ssbm/',
-#          httr::add_headers('#content a'))
-
-# mapped_names = c("%26" = ' & ',
-#                  '.' = '',
-#                  'Pit, but edgy' = 'Dark Pit',
-#                  'Dank Samus' = 'Dark Samus',
-#                  'Educated Mario' =  'Dr Mario',
-#                  'Duck Hunt Duo' = 'Duck Hunt',
-#                  '^Dedede$' =  'King Dedede',
-#                  'King K. Rool'  = 'King K Rool',
-#                  'King KRool'  = 'King K Rool',
-#                  'Megaman' = 'Mega Man',
-#                  'Mii Swordspider' = 'Mii Swordfighter',
-#                  'M. Game & Watch' = 'Mr Game & Watch',
-#                  'PAC-MAN' = 'Pac Man',
-#                  'Pac-Man' = 'Pac Man',
-#                  'PACMAN' = 'Pac Man',
-#                  'Pok%C3%A9mon Trainer' = 'Pokemon Trainer',
-#                  'é'  = 'e',
-#                  'R.O.B.' = 'Rob',
-#                  'ROB' = 'Rob',
-#                  'Rosalina' = 'Rosalina & Luma')
-# 
+# For the egg
+piano = FALSE
+if (piano) {
+  if (!dir.exists('www/audio/easter')) dir.create('www/audio/easter')
+  keys = read_html('https://github.com/fuhton/piano-mp3/tree/master/piano-mp3') %>% html_nodes('a') %>%
+    html_attr('href') %>%  str_subset('.{2,3}\\.mp3') %>% str_extract("[^/]+[/]?$")
+  for (key in keys) {
+    download.file(paste0('https://raw.githubusercontent.com/fuhton/piano-mp3/master/piano-mp3/', key), destfile = paste0('www/audio/easter/', key))
+  }
+}
+#keys = httr::GET('https://raw.githubusercontent.com/fuhton/piano-mp3/master/package.json',
+#          httr::add_headers('content-type' = 'application/json'))
+#keys_json = jsonlite::fromJSON(httr::content(keys, 'text')) 
+#keys_json$repository$url
+# git2r::clone('https://github.com/fuhton/piano-mp3.git')
+#'https://github.com/fuhton/piano-mp3/tree/master/piano-mp3'

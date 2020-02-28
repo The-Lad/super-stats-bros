@@ -1,10 +1,10 @@
 # Server functions
 server <- function(input, output, session) {
-  
+  ## SIDEBAR
   observeEvent(input$use_tiers_data, {
     toggle('tier_color_scheme')
   })
-
+  
   # Prevent duplicate names
   observeEvent(input$yvar_input, {
     updateSelectInput(session, 'xvar_input', choices = setdiff(all_plot_vars, c('tier', input$yvar_input)),selected = input$xvar_input)
@@ -13,6 +13,7 @@ server <- function(input, output, session) {
     updateSelectInput(session, 'yvar_input', choices = setdiff(all_plot_vars, c('tier', input$xvar_input)), selected = input$yvar_input)
   })
   
+  ## DATA
   reactive_dataset <- reactive({
     
     if(input$use_tiers_data){
@@ -36,7 +37,7 @@ server <- function(input, output, session) {
     # color = purrr::map(color, ~paste0('rgba(', str_flatten(as.vector(col2rgb(.x)), ','), ',0.3)')))
   })
   
-  
+  ## PLOT
   output$omitted <- renderText({
     input$yvar_input
     input$xvar_input
@@ -69,6 +70,30 @@ server <- function(input, output, session) {
                     ))
   })
   
+  ## DATA TABLE
+  output$main_datatable <- renderDataTable({
+    datatable(reactive_dataset() %>% select(name, !!input$xvar_input := 'xvar', !!input$yvar_input := 'yvar'), selection = "single", rownames = FALSE, options = list(dom = 'tf'))
+  }, server = TRUE)
+  
+  tableProxy <-  dataTableProxy("main_datatable")
+  
+  observeEvent(input$main_plot_click, {
+    if (input$main_plot_click$series == 'Series 1') {
+      charId = which(reactive_dataset()$name == input$main_plot_click$name)
+      
+      tableProxy %>% 
+        selectRows(charId) %>%
+        selectPage( (charId-1) %/% number_of_rows_dt + 1)
+      
+      
+    } else {
+      #browser()
+      tableProxy %>%
+        selectRows('')
+    }
+  })
+  
+  ## SOUND
   observeEvent(input$playsound, {
     if (input$playsound) {
       insertUI(selector = "#playsound",
@@ -84,24 +109,18 @@ server <- function(input, output, session) {
     
   }, ignoreInit = TRUE)
   
-  observeEvent(input$hidden_button, {
-    insertUI(selector = "#hidden_button",
-             where = "afterEnd",
-             ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['READY']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
-    )
-    
-    insertUI(selector = "#hidden_button",
-             where = "afterEnd",
-             ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['GO']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
-    )
-  }, ignoreNULL = FALSE)
+  # observeEvent(input$hidden_button, {
+  #   insertUI(selector = "#hidden_button",
+  #            where = "afterEnd",
+  #            ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['READY']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
+  #   )
+  #   
+  #   insertUI(selector = "#hidden_button",
+  #            where = "afterEnd",
+  #            ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['GO']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
+  #   )
+  # }, ignoreNULL = FALSE)
   
-  
-  output$main_datatable <- renderDataTable({
-    datatable(reactive_dataset() %>% select(name, !!input$xvar_input := 'xvar', !!input$yvar_input := 'yvar'), selection = "single", rownames = FALSE, options = list(dom = 'tf'))
-  }, server = TRUE)
-  
-  tableProxy <-  dataTableProxy("main_datatable")
   
   observeEvent(input$main_datatable_rows_selected, {
     if (!input$use_tiers_data){
@@ -120,26 +139,35 @@ server <- function(input, output, session) {
     }
   })
   
-  observeEvent(input$main_plot_click, {
-    if (input$main_plot_click$series == 'Series 1') {
-      charId = which(reactive_dataset()$name == input$main_plot_click$name)
-      
-      tableProxy %>% 
-        selectRows(charId) %>%
-        selectPage( (charId-1) %/% number_of_rows_dt + 1)
-      
-      
-    } else {
-      #browser()
-      tableProxy %>%
-        selectRows('')
-    }
+  ## EASTER
+  all_keys <- reactiveVal("")
+  
+  output$last_key = renderText({
+    chr(input$keyseq)
   })
   
-  # observeEvent(input$main_plot_mouseOut, {
-  #   browser()
-  #   tableProxy 
-  # })
+  observeEvent(input$keyseq,{
+    all_keys(paste0(all_keys(), chr(input$keyseq))[1:min(length(all_keys()), 100)])
+  })
+  
+  
+  observeEvent(input$hide_me, {
+    #browser()
+    isolate({
+    if (str_detect(tolower(all_keys()), 'defdfcbabga#agfgagfgedefdfcbabda#agfgagfgegcd')) {
+      insertUI(selector = "#playsound",
+               where = "afterEnd",
+               ui = tags$audio(src = "audio/easter/full_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
+      )
+    } else if (str_detect(tolower(all_keys()), 'defdfcbabg')) {
+      insertUI(selector = "#playsound",
+               where = "afterEnd",
+               ui = tags$audio(src = "audio/easter/riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
+      )
+    }
+  })
+  })
+  
 }
 
 
