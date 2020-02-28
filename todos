@@ -2,25 +2,30 @@ TODO
 # MUST
 Get tier list data
 Predict tier list model
-Fix data table for tiers
 Fix data table for images as markers once clicked (circle)
-Fix error with circle lingering
-Fix error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
-Fix circle hiding image markers
-Fix error when same thing selected twice
+Fix error with circle lingering (where?)
+Disable x and y var being the same
+Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 Set a zoom limit to prevent the singularity from consuming us all
 Zooming in w/ icons as points without zooming in on the actual poins is quite glitchy
+Commented code
 
 # WANT
+!!!Display data table as Ultimate character select screen!!!
 Local icons working
 Tier list model functionality in app
+Data table can jump to tier icon for tiers
+Super Smash bros font for Super Stats Bros
+Rest of announcer clips
+Time range for tournament_win_freq
 Improve the hovering. Maybe make it so that as you hover over a point it slightly increases in size?
 
 # POSSIBLES
 Tier list model runs and predicts on character of user's design (incl photo they add- can't use usage, tournament etc in this case)
-Head to head comparison
-Option for icons as pics
+Head to head comparison feature
 Series fighters comparison (plotting points in clusters, plotting mean & sds of stats)
 Top Trumps style game
 
 # DONE
+Fixed circle hiding image markers
+Option for icons as pics
