@@ -1,12 +1,17 @@
+# Required libraries
 library(rvest)
+library(stringr)
+library(dplyr)
+source('data_constants.R')
+
 site = "https://www.sounds-resource.com"
-games = c('64' = "/nintendo_64/supersmashbros/",
+games = c('N64' = "/nintendo_64/supersmashbros/",
           'Melee' = "/gamecube/ssbm/",
           'Brawl' = "/wii/ssbb/",
           'Smash4' = "/wii_u/supersmashbrosforwiiu/",
           'Ultimate' = "/nintendo_switch/supersmashbrosultimate/")
 
-old_sources = c('64' ='https://www.sounds-resource.com/nintendo_64/supersmashbros/sound/2586/',
+old_sources = c('N64' ='https://www.sounds-resource.com/nintendo_64/supersmashbros/sound/2586/',
                 'Melee' = 'https://www.sounds-resource.com/gamecube/ssbm/sound/439/',
                 'Brawl' = 'https://www.sounds-resource.com/wii/ssbb/sound/537/',
                 'Smash4'= 'https://www.sounds-resource.com/wii_u/supersmashbrosforwiiu/sound/4384/',
@@ -39,8 +44,42 @@ for (game in names(games)) {
   }
 }
 
-unzip('data/dont_commit/64.zip', list = TRUE)
+
+unzip('data/dont_commit/N64.zip', files = as.vector(char_list$n64_sounds[char_list$n64_sounds != ""]), exdir = 'www/audio/announcer/n64')
+unzip('data/dont_commit/Melee.zip', files = as.vector(char_list$melee_sounds[char_list$melee_sounds != ""]), exdir = 'www/audio/announcer/melee')
+unzip('data/dont_commit/Brawl.zip', files = as.vector(char_list$brawl_sounds[char_list$brawl_sounds != ""]), exdir = 'www/audio/announcer/brawl')
+unzip('data/dont_commit/Smash4.zip', files = as.vector(char_list$smash4_sounds[char_list$smash4_sounds != ""]), exdir = 'www/audio/announcer/smash4')
+unzip('data/dont_commit/Ultimate.zip', files = as.vector(char_list$ultimate_sounds[char_list$ultimate_sounds != ""]), exdir = 'www/audio/announcer/ultimate')
+
+unzip('data/dont_commit/Melee.zip', files = melee_bonuses, exdir = 'www/audio/announcer/melee')
+
+
+# DLC chars...
+
+
+
 ###
 #mp3s <- httr::GET('https://www.sounds-resource.com/gamecube/ssbm/',
 #          httr::add_headers('#content a'))
 
+# mapped_names = c("%26" = ' & ',
+#                  '.' = '',
+#                  'Pit, but edgy' = 'Dark Pit',
+#                  'Dank Samus' = 'Dark Samus',
+#                  'Educated Mario' =  'Dr Mario',
+#                  'Duck Hunt Duo' = 'Duck Hunt',
+#                  '^Dedede$' =  'King Dedede',
+#                  'King K. Rool'  = 'King K Rool',
+#                  'King KRool'  = 'King K Rool',
+#                  'Megaman' = 'Mega Man',
+#                  'Mii Swordspider' = 'Mii Swordfighter',
+#                  'M. Game & Watch' = 'Mr Game & Watch',
+#                  'PAC-MAN' = 'Pac Man',
+#                  'Pac-Man' = 'Pac Man',
+#                  'PACMAN' = 'Pac Man',
+#                  'Pok%C3%A9mon Trainer' = 'Pokemon Trainer',
+#                  'é'  = 'e',
+#                  'R.O.B.' = 'Rob',
+#                  'ROB' = 'Rob',
+#                  'Rosalina' = 'Rosalina & Luma')
+# 

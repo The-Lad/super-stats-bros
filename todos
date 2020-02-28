@@ -2,13 +2,9 @@ TODO
 # MUST
 Get tier list data
 Predict tier list model
-Fix data table for images as markers once clicked (circle)
-Fix error with circle lingering (where?)
-Disable x and y var being the same
 Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
-Set a zoom limit to prevent the singularity from consuming us all
-Zooming in w/ icons as points without zooming in on the actual poins is quite glitchy
 Commented code
+A lot of plots may be missing Pokemon Trainer as there are Squirtle, Ivysaur and Charizard. Fix in future- get Squirtle, Ivysaur, Charizard but NA them for all that Trainer is non-NA for.
 
 
 # WANT
@@ -22,6 +18,7 @@ Time range for tournament_win_freq
 Improve the hovering. Maybe make it so that as you hover over a point it slightly increases 
 
 # POSSIBLES
+Modify get_sounds script to move files out of nested structure
 Tier list model runs and predicts on character of user's design (incl photo they add- can't use usage, tournament etc in this case)
 Head to head comparison feature
 Series fighters comparison (plotting points in clusters, plotting mean & sds of stats)
@@ -30,4 +27,7 @@ Top Trumps style game
 # DONE
 Fixed circle hiding image markers
 Option for icons as pics
-
+Disable x and y var being the same
+DLC character announcer
+Set a zoom limit to prevent the singularity from consuming us all
+Zooming in w/ icons as points without zooming in on the actual poins is quite glitchy (CANT REPRODUCE)

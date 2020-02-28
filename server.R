@@ -1,73 +1,18 @@
-###################################
-## SUPER STATS BROS v0.01       ##
-## Author: Nicholas Meuli        ##
-###################################
-library(shiny)
-library(shinyWidgets)
-library(shinyjs)
-library(shinydashboard)
-library(highcharter)
-library(DT)
-library(dplyr)
-library(stringr)
-
-#source("imageBoxFunctions.R", local = TRUE)
-
-if (file.exists('data/dont_commit/char_stats.rds')) {
-  source('load_app_data.R')
-} else {
-  source('compile_data.R')
-}
-
-
-ui<- dashboardPage(
-  #setBackgroundColor("#FFFFFF"),
-  dashboardHeader(title = 'SUPER STATS BROS'),
-  dashboardSidebar(
-    selectInput('xvar_input', label = 'Choose x variable:',
-                choices = setdiff(all_plot_vars, 'tier'),
-                selected = 'air_speed'),
-    selectInput('yvar_input', label = 'Choose y variable:',
-                choices = setdiff(all_plot_vars, 'tier'),
-                selected = 'fall_speed'),
-    prettyCheckbox('img_markers', label = 'Images as markers?', shape = 'curve'),
-    prettyCheckbox('use_tiers_data', label = "Group by tier?", shape = 'curve'),
-    switchInput(
-      inputId = "tier_color_scheme",
-      onLabel = 'dumpster \nto glory',
-      offLabel = 'boring',
-      label = "<i class=\"fa fa-grin-hearts\"></i>"
-    ),
-    prettyCheckbox('playsound', label = 'SOUND')
-  ), 
-  dashboardBody(
-    #titlePanel('SUPER STATS BROS'),
-    box(
-      highchartOutput('main_plot'),
-      background = "green",
-      width = 12
-    ),
-    hr(),
-    box(
-      dataTableOutput('main_datatable'),
-      width = 12
-    )
-  ),
-  shinyjs::useShinyjs()
-)
-
+# Server functions
 server <- function(input, output, session) {
   
   observeEvent(input$use_tiers_data, {
     toggle('tier_color_scheme')
-    
-    # input$main_plot_click
+  })
+
+  # Prevent duplicate names
+  observeEvent(input$yvar_input, {
+    updateSelectInput(session, 'xvar_input', choices = setdiff(all_plot_vars, c('tier', input$yvar_input)),selected = input$xvar_input)
+  })
+  observeEvent(input$xvar_input, {
+    updateSelectInput(session, 'yvar_input', choices = setdiff(all_plot_vars, c('tier', input$xvar_input)), selected = input$yvar_input)
   })
   
-  # click_data <- reactive({
-  #   input$main_plot_click
-  # }) 
-  # 
   reactive_dataset <- reactive({
     
     if(input$use_tiers_data){
@@ -91,14 +36,21 @@ server <- function(input, output, session) {
     # color = purrr::map(color, ~paste0('rgba(', str_flatten(as.vector(col2rgb(.x)), ','), ',0.3)')))
   })
   
+  
+  output$omitted <- renderText({
+    input$yvar_input
+    input$xvar_input
+    if (!input$use_tiers_data) paste('Omitted:', str_flatten(setdiff(char_list$app_names, reactive_dataset()$name), ', '))
+  })
+  
   main_hc <- reactive({
     hchart(reactive_dataset(), type = 'scatter',
            hcaes(y = yvar, x = xvar, color = color, name = name, image =  image)) %>% 
       hc_legend(enabled = FALSE) %>%
-      hc_xAxis(title = list(text = input$xvar_input))%>%
-      hc_yAxis(title = list(text = input$yvar_input))%>%
+      hc_chart(zoomType = 'xy') %>%
+      hc_xAxis(title = list(text = input$xvar_input), minRange = diff(range(reactive_dataset()$xvar)/50)) %>%
+      hc_yAxis(title = list(text = input$yvar_input), minRange = diff(range(reactive_dataset()$yvar)/50)) %>%
       hc_plotOptions(series = list(allowPointSelect= FALSE)) %>%
-      hc_chart(zoomType = 'xy') %>% 
       hc_add_event_point(event = "click") %>%
       #hc_add_event_point(event = "unselect") %>%
       hc_tooltip(useHTML = TRUE,
@@ -130,7 +82,20 @@ server <- function(input, output, session) {
       )
     }
     
-  })
+  }, ignoreInit = TRUE)
+  
+  observeEvent(input$hidden_button, {
+    insertUI(selector = "#hidden_button",
+             where = "afterEnd",
+             ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['READY']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
+    )
+    
+    insertUI(selector = "#hidden_button",
+             where = "afterEnd",
+             ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['GO']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
+    )
+  }, ignoreNULL = FALSE)
+  
   
   output$main_datatable <- renderDataTable({
     datatable(reactive_dataset() %>% select(name, !!input$xvar_input := 'xvar', !!input$yvar_input := 'yvar'), selection = "single", rownames = FALSE, options = list(dom = 'tf'))
@@ -138,29 +103,26 @@ server <- function(input, output, session) {
   
   tableProxy <-  dataTableProxy("main_datatable")
   
-   observeEvent(input$main_datatable_rows_selected, {
-     sound_clip =  str_subset(list.files('www/audio/announcer/'), reactive_dataset()[input$main_datatable_rows_selected,]$name )
-     
-     if (length(sound_clip) == 1) {
-       insertUI(selector = "#playsound",
-                where = "afterEnd",
-                ui = tags$audio(src = paste0('audio/announcer/', sound_clip), type = paste0("audio/", str_extract(sound_clip, '\\..+$')), 
-                                autoplay = NA, controls = NA, style="display:none;"))
-     }
-     })
+  observeEvent(input$main_datatable_rows_selected, {
+    if (!input$use_tiers_data){
+      sound_row = char_list[char_list$app_names == reactive_dataset()[input$main_datatable_rows_selected,]$name,]
+      available_sounds = select_if(sound_row[, input$enabled_sounds, drop = FALSE], function(x) x!="")
+      #browser()
+      if (ncol(available_sounds) > 0) {
+        sound_clip = paste(str_remove(colnames(available_sounds[1]), '_sounds'), available_sounds[,1], sep = '/')
+        if (length(sound_clip) == 1) {
+          insertUI(selector = "#playsound",
+                   where = "afterEnd",
+                   ui = tags$audio(src = paste0('audio/announcer/', sound_clip), type = paste0("audio/", str_extract(sound_clip, '\\..+$')), 
+                                   autoplay = NA, controls = NA, style="display:none;"))
+        }
+      }
+    }
+  })
   
   observeEvent(input$main_plot_click, {
     if (input$main_plot_click$series == 'Series 1') {
       charId = which(reactive_dataset()$name == input$main_plot_click$name)
-      
-      # sound_clip =  str_subset(list.files('www/audio/announcer/'), reactive_dataset()[charId,]$name )
-      # 
-      # if (length(sound_clip) == 1) {
-      # insertUI(selector = "#playsound",
-      #          where = "afterEnd",
-      #          ui = tags$audio(src = paste0('audio/announcer/', sound_clip), type = paste0("audio/", str_extract(sound_clip, '\\..+$')), 
-      #                          autoplay = NA, controls = NA, style="display:none;"))
-      # }
       
       tableProxy %>% 
         selectRows(charId) %>%
@@ -180,9 +142,6 @@ server <- function(input, output, session) {
   # })
 }
 
-
-# Run the application 
-shinyApp(ui = ui, server = server)
 
 
 
