@@ -39,6 +39,7 @@ ui<- dashboardPage(
       label = "<i class=\"fa fa-grin-hearts\"></i>"
     ),
     prettyCheckbox('playsound', label = 'click 4 a surprise'),
+    prettyCheckbox('roster_dt', label = 'Roster table?', value = TRUE),
     prettyCheckboxGroup('enabled_sounds', label = 'Use which sounds? (Older preferred)', shape = 'curve',
                         choices = c('N64' = 'n64_sounds', 'Melee' = 'melee_sounds', 'Brawl' = 'brawl_sounds', 'Smash4' = 'smash4_sounds', 'Ultimate' = 'ultimate_sounds'),
                         selected = 'ultimate_sounds'),

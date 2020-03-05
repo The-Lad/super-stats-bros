@@ -10,6 +10,7 @@ source('load/get_usage_and_winning.R')
 source('load/get_tournament_results.R')
 source('load/get_tier_list.R')
 source('load/get_icons.R')
+source('load/get_roster_icons.R')
 source('load/get_colors.R')
 constituent_chars = c('Squirtle', 'Ivysaur', 'Charizard', 'Popo', 'Nana')
 
@@ -34,6 +35,11 @@ if ('tier_list' %in% ls()) char_data = left_join(char_data, select(tier_list, -r
 # Add local and URL paths to character icons
 char_data = left_join(char_data, tibble::enframe(files, "character", "icon_path"))
 char_data = left_join(char_data, tibble::enframe(icons, "character", "icon_url_path"))
+
+char_data = left_join(char_data, roster_images, by = 'character')
+
+# Add id (order)
+char_data = left_join(char_data, select(char_list, character = app_names, id))
 
 if ('background_colors_clean' %in% ls()) {
   char_data = left_join(char_data, background_colors_clean)

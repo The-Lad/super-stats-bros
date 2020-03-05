@@ -1,19 +1,27 @@
 mapped_names = c("Banjo.*Kazooie" = 'Banjo & Kazooie',
+                 "^Banjo$" = 'Banjo & Kazooie', 
                  'Bowser Jr.' = 'Bowser Jr',
+                 '^Falcon$' = 'Captain Falcon',
                  'Pit, but edgy' = 'Dark Pit',
                  'Dank Samus' = 'Dark Samus',
+                 '^Diddy$' = 'Diddy Kong',
                  'Dr.*Mario' = 'Dr Mario',
                  'Educated Mario' =  'Dr Mario',
                  'Duck Hunt Duo' = 'Duck Hunt',
+                 '^Climbers$' = 'Ice Climbers',
+                 'Lukas' = 'Lucas',
                  '^Dedede$' =  'King Dedede',
                  'K.*Rool'  = 'King K Rool',
                  'Mega.*[m|M]an' = 'Mega Man',
                  'Mii Sword.*' = 'Mii Swordfighter',
                  '.*Game.*Watch' = 'Mr Game & Watch',
                  '^P[a|A][c|C].*M[a|A][n|N]$'  = 'Pac Man',
+                 '^Piranha$' = 'Piranha Plant',
                  'Pok.*mon Trainer' = 'Pokemon Trainer',
                  '^R.*[O|o].*[B|b]\\.?$' = 'Rob',
-                 'Rosalina' = 'Rosalina & Luma')
+                 'Rosalina' = 'Rosalina & Luma',
+                 '^Wii.*Fit$' = 'Wii Fit Trainer',
+                 '^Zero.*Suit$' = 'Zero Suit Samus')
 
 char_list = read.csv('data/char_list.csv', stringsAsFactors = FALSE)
 

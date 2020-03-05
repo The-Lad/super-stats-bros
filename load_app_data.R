@@ -3,10 +3,71 @@ source('data_constants.R')
 
 char_stats = readRDS('data/dont_commit/char_stats.rds')
 incomplete_cols =  c('crawl', 'jumpsquat', 'gravity', 'tether', 'wall_cling', 'wall_jump', 'hard_landing_lag', 'fh_air_time', 'max_jumps', 'sh_air_time', 'soft_landing_lag')
-all_plot_vars = setdiff(setdiff(colnames(char_stats), incomplete_cols), c('character', 'color', 'series_color', 'icon_path',  'icon_url_path'))
+all_plot_vars = setdiff(setdiff(colnames(char_stats), incomplete_cols), c('character', 'id', 'color', 'series_color', 'icon_path',  'icon_url_path', 'roster_image'))
+img_uri <- function(x) { sprintf('<img src="%s" height = 28px width = 50px"/>', knitr::image_uri(x)) }
+
+changeCellColor <- function(){
+  #row = ceiling(ind/12)
+  #col = ifelse(ind %% 12 == 0, 12, ind %% 12)
+  #   c(
+  #     "function(row, data, num, index){",
+  #     sprintf("  if(index == %d){", row-1),
+  #     sprintf("    $('td:eq(' + %d + ')', row)", col-1),
+  #     "    .css({'background-color': 'orange'});",
+  #     "  }",
+  #     "}"  
+  #   )
+  # }
+  
+  c(
+    "function(row, data, num, index){",
+    sprintf("    $('td:eq(' + %d + ')', row).css({'background-color': 'orange'})", 1:12),
+    "}"  
+  )
+}
+
+
+callback <- function(last_row, cols, colors){
+  c(
+    "function(row, data, num, index){",
+    sprintf("if(index == %d){", last_row-1),
+    sprintf("    $('td:eq(' + %d + ')', row).addClass('notselectable');", cols-1),
+    #sprintf("    $('td:eq(' + %d + ')', row).css({'background-color': ' + %s + ');", 0:(length(colors)-1), colors),
+    "  }",
+    #"$(row).addClass('notselectable')",
+    "}"
+  )
+}
+
+callback2 <- function(last_row, cols, colors){
+  c(
+    "table.on('click', 'td', function() {",
+    sprintf("if(index == %d){", last_row-1),
+    sprintf("    $('td:eq(' + %d + ')', row).removeClass('selected');", cols-1),
+    #sprintf("    $('td:eq(' + %d + ')', row).css({'background-color': ' + %s + ');", 0:(length(colors)-1), colors),
+    "  }",
+    #"$(row).addClass('notselectable')",
+    "}"
+  )
+}
+
+# click_callback <- c(
+#   c(
+#  # "var id = $(main_datatable.table().node()).closest('.datatables').attr('id');",
+#   "table.on('click', 'tbody', function(){",
+#   "  setTimeout(function(){",
+#   "    var indexes = table.cells({selected:true}).indexes();",
+#   "    Shiny.setInputValue('main_datatable_cells_selected', indexes);",
+#   "  }, 0);",
+#   "});"
+# )
+
 
 number_of_rows_dt = 10
 
+#207 211 243
+#228 200 65
+#249 245 183
 # TIER STUFF
 if (anyNA(filter(select(char_stats, character, all_plot_vars, -initial_dash), !is.na(tier) & !character %in% c('Byleth', 'Pokemon Trainer')))) stop('Unexpected missing values in char_list')
 tier_cols_dg = c("#6B4804","#7F5515", '#907554' , "#CD7F32", "#C0C0C0", "#FFD700") # poop brown
@@ -22,7 +83,7 @@ tier_images = c(
   'https://static-cdn.jtvnw.net/emoticons/v1/300654653/1.0', #daHeck 
   'https://static-cdn.jtvnw.net/emoticons/v1/1431656/1.0', #expand
   'https://static-cdn.jtvnw.net/emoticons/v1/140967/1.0', # hbox
- ' https://static-cdn.jtvnw.net/emoticons/v1/300067189/1.0' #rip hboxKrey 'https://static-cdn.jtvnw.net/emoticons/v1/120195/1.0'
+  ' https://static-cdn.jtvnw.net/emoticons/v1/300067189/1.0' #rip hboxKrey 'https://static-cdn.jtvnw.net/emoticons/v1/120195/1.0'
 )
 
 tier_stats = char_stats %>%

@@ -1,23 +1,29 @@
 TODO
 # MUST
-Get tier list data
 Predict tier list model
 Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 Commented code
 Integrate get_sounds.R into compile_data.R
 
+Disable click on black boxes
+Fix click on bottom row of roster dt
+Fix switching issues
+Add sounds to roster
+Add color backgrounds
 
 # WANT
 !!!Display data table as Ultimate character select screen!!!
-Local icons working
+Fix non-ability to repeat two keyseq in a row
 Tier list model functionality in app
 Data table can jump to tier icon for tiers
-Super Smash bros font for Super Stats Bros
-Rest of announcer clips
-Time range for tournament_win_freq
-Improve the hovering. Maybe make it so that as you hover over a point it slightly increases 
+READY, GO on start, GAME on stop. HARD
+Time range for tournament_win_freq - MATT
+Lower hover-off range -SHARN
+Improve the hovering. Maybe make it so that as you hover over a point it slightly increases - SHARN 
+ 
 
 # POSSIBLES
+Very slight jitter 
 Modify get_sounds script to move files out of nested structure
 Tier list model runs and predicts on character of user's design (incl photo they add- can't use usage, tournament etc in this case)
 Head to head comparison feature
@@ -26,6 +32,7 @@ Top Trumps style game
 
 # DONE
 Fixed circle hiding image markers
+Get tier list data
 Option for icons as pics
 Disable x and y var being the same
 DLC character announcer
@@ -33,3 +40,5 @@ Set a zoom limit to prevent the singularity from consuming us all
 Zooming in w/ icons as points without zooming in on the actual poins is quite glitchy (CANT REPRODUCE)
 Show plot omissions
 A lot of plots may be missing Pokemon Trainer as there are Squirtle, Ivysaur and Charizard. Fix in future- get Squirtle, Ivysaur, Charizard but NA them for all that Trainer is non-NA for.
+(Rest of announcer clips
+Super Smash bros font for Super Stats Bros

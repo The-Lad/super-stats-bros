@@ -57,17 +57,36 @@ unzip('data/dont_commit/Ultimate.zip', files = as.vector(char_list$ultimate_soun
 
 unzip('data/dont_commit/Melee.zip', files = melee_bonuses, exdir = 'www/audio/announcer/melee')
 
+file.remove('data/dont_commit/N64.zip')
+file.remove('data/dont_commit/Melee.zip')
+file.remove('data/dont_commit/Brawl.zip')
+file.remove('data/dont_commit/Smash4.zip')
+file.remove('data/dont_commit/Ultimate.zip')
 
 # For the egg
 piano = FALSE
 if (piano) {
   if (!dir.exists('www/audio/easter')) dir.create('www/audio/easter')
-  keys = read_html('https://github.com/fuhton/piano-mp3/tree/master/piano-mp3') %>% html_nodes('a') %>%
-    html_attr('href') %>%  str_subset('.{2,3}\\.mp3') %>% str_extract("[^/]+[/]?$")
-  for (key in keys) {
-    download.file(paste0('https://raw.githubusercontent.com/fuhton/piano-mp3/master/piano-mp3/', key), destfile = paste0('www/audio/easter/', key))
-  }
+  try({
+    download_site = 'http://www.mediafire.com/file/zd1mqtazulgv28a/mp3_Notes.rar/file'
+    piano_file = read_html(download_site) %>% 
+      html_node('.input') %>% html_attr('href')
+    tf = tempfile()
+    download.file(piano_file, tf, mode="wb") #'data/dont_commit/mp3 Notes.rar')
+    z7path = shQuote('C:\\Program Files\\7-Zip\\7z')
+    cmd = paste(z7path, ' e ', paste('"', tf, '"',sep = ''), ' -ir!*.* -o', '"', paste0(getwd(), '/www/audio/easter'), '"', sep='')
+    system(cmd)
+    unlink(t)
+  })
 }
+
+
+# keys = read_html('https://github.com/fuhton/piano-mp3/tree/master/piano-mp3') %>% html_nodes('a') %>%
+#   html_attr('href') %>%  str_subset('.{2,3}\\.mp3') %>% str_extract("[^/]+[/]?$")
+# for (key in keys) {
+#   download.file(paste0('https://raw.githubusercontent.com/fuhton/piano-mp3/master/piano-mp3/', key), destfile = paste0('www/audio/easter/', key))
+# }
+
 #keys = httr::GET('https://raw.githubusercontent.com/fuhton/piano-mp3/master/package.json',
 #          httr::add_headers('content-type' = 'application/json'))
 #keys_json = jsonlite::fromJSON(httr::content(keys, 'text')) 
