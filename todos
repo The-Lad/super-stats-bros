@@ -3,6 +3,8 @@ TODO
 Predict tier list model
 Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 Commented code
+Pacman's ultimate sound file
+Fix normal dt sounds
 Integrate get_sounds.R into compile_data.R
 
 Disable click on black boxes

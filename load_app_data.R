@@ -51,7 +51,32 @@ callback2 <- function(last_row, cols, colors){
   )
 }
 
-# click_callback <- c(
+select_callback <- #" var table = $('#main_datatable');
+"$('#main_datatable').on( 'select.dt', function ( e, dt, type, indexes ) {
+     var c_row = table.cell(indexes).index().row
+      var c_col = table.cell(indexes).index().column;
+       Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col], {priority: 'event'});
+                             
+} );"
+
+select_callback2 <- #" var table = $('#main_datatable');
+  "$('#main_datatable').on( 'select.dt', function ( e, dt, type, indexes ) {
+     var c_row = table.cell().index().row;
+      var c_col = table.cell().index().column;
+       Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col], {priority: 'event'});
+                             
+} );"
+
+
+
+ click_callback <- "table.on( 'click.dt', 'td', function () {
+                              var c_row = table.cell(this).index().row;
+                              var c_col = table.cell(this).index().column;
+                              Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col], {priority: 'event'});
+                              })"
+
+
+#c(
 #   c(
 #  # "var id = $(main_datatable.table().node()).closest('.datatables').attr('id');",
 #   "table.on('click', 'tbody', function(){",

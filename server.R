@@ -59,7 +59,7 @@ server <- function(input, output, session) {
    this.point.x + '</b></span></br><img src=\"'+ this.point.image + '\"width=\"48\" height=\"48\"/></br>');}")) %>%
       hc_add_theme(hc_theme_chalk())
   })
-  #observeEvent(input$foo, {print(3)})
+  observeEvent(input$foo, {print(input$foo)})
   
   output$main_plot <- renderHighchart({
     if ((is.null(input$main_datatable_rows_selected) & is.null(input$main_datatable_cells_selected)) | input$use_tiers_data) {
@@ -69,7 +69,7 @@ server <- function(input, output, session) {
     } else {   
       highlighted_point =  select(arrange(reactive_dataset(), id)[id_row(),] , x= xvar, y = yvar, color, name, image) # ifelse(col > 0 & (row+col) < num_chars,NULL)
     }
-    
+    #browser()
     main_hc() %>% 
       hc_add_series(data = highlighted_point, type = 'scatter', marker = list(radius = 30, lineWidth = 5, lineColor = ifelse(input$img_markers, "rgba(32,205,32, 0.3)", 'rgba(32,205,32, 1)')))
     
@@ -110,11 +110,7 @@ server <- function(input, output, session) {
                 extensions = "Select", 
                 #callback = JS(callback2(length(padded_images)/12, black_boxes, colors)),
                 rownames = FALSE, colnames = rep("", 12), escape = FALSE, 
-                callback = JS("table.on( 'click.dt', 'td', function () {
-                              var c_row = table.cell(this).index().row;
-                              var c_col = table.cell(this).index().column;
-                              Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col], {priority: 'event'});
-                              })"),
+                callback = JS(select_callback),
                 options = list(dom = 't', ordering = FALSE, select = list(items = 'cell', style ='single', selector = "td:not(.notselectable)"), rowCallback = JS(callback(length(padded_images)/12, black_boxes, colors)))
       )%>% 
         formatStyle(c(1:dim(template)[2]), border = '3px solid #000') #%>% 
@@ -123,7 +119,8 @@ server <- function(input, output, session) {
       #, backgroundColor = styleColorBar(1:length(padded_images), rep("rgb(255,0,0)", length(padded_images)), ))
       
     } else {
-      datatable(reactive_dataset() %>% select(name, !!input$xvar_input := 'xvar', !!input$yvar_input := 'yvar'), selection = "single", rownames = FALSE, options = list(dom = 'tf'))
+      datatable(reactive_dataset() %>% select(name, !!input$xvar_input := 'xvar', !!input$yvar_input := 'yvar'),
+                callback = JS(""),selection = "single", rownames = FALSE, options = list(dom = 'tf'))
     }
   }, server = TRUE)
   
@@ -191,8 +188,10 @@ server <- function(input, output, session) {
     input$main_datatable_cells_selected}, {
       if (!input$use_tiers_data){
         if (!is.null(input$main_datatable_rows_selected) & is.null(input$main_datatable_cells_selected)) {
+          browser()
           sound_row = char_list[char_list$app_names == reactive_dataset()[input$main_datatable_rows_selected,]$name,]
         } else if (!is.null(input$main_datatable_cells_selected)) {
+          browser()
           sound_row = char_list[char_list$app_names == arrange(reactive_dataset(), id)[id_row(),]$name, ]
         } else {
           print('ERROR with data tables!')
