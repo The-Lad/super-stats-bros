@@ -3,14 +3,10 @@ TODO
 Predict tier list model
 Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 Commented code
-Pacman's ultimate sound file
 Fix normal dt sounds
 Integrate get_sounds.R into compile_data.R
 
-Disable click on black boxes
-Fix click on bottom row of roster dt
 Fix switching issues
-Add sounds to roster
 Add color backgrounds
 
 # WANT
@@ -22,6 +18,10 @@ READY, GO on start, GAME on stop. HARD
 Time range for tournament_win_freq - MATT
 Lower hover-off range -SHARN
 Improve the hovering. Maybe make it so that as you hover over a point it slightly increases - SHARN 
+Click button to swap x and y axes
+Possible character select sound in background
+On Omitted, show Char+gang as POKEMON TRAINER, and PopoNana as ICs
+Add other songs to keyboard easter egg
  
 
 # POSSIBLES
@@ -33,6 +33,10 @@ Series fighters comparison (plotting points in clusters, plotting mean & sds of 
 Top Trumps style game
 
 # DONE
+Pacman's ultimate sound file
+Fix click on bottom row of roster dt
+Add sounds to roster
+Disable click on black boxes for roster dt (this was a lot of work!)
 Fixed circle hiding image markers
 Get tier list data
 Option for icons as pics

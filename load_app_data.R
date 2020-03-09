@@ -55,7 +55,7 @@ select_callback <- #" var table = $('#main_datatable');
 "$('#main_datatable').on( 'select.dt', function ( e, dt, type, indexes ) {
      var c_row = table.cell(indexes).index().row
       var c_col = table.cell(indexes).index().column;
-       Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col], {priority: 'event'});
+       Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col]);
                              
 } );"
 

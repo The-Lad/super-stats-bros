@@ -15,7 +15,6 @@ server <- function(input, output, session) {
   
   ## DATA
   reactive_dataset <- reactive({
-    
     if(input$use_tiers_data){
       tier_stats %>% 
         select(name = tier, yvar = !!paste0(input$yvar_input, '_mean'), yvar_sd = !!paste0(input$yvar_input, '_sd'),
@@ -55,14 +54,16 @@ server <- function(input, output, session) {
       hc_add_event_point(event = "click") %>%
       #hc_add_event_point(event = "unselect") %>%
       hc_tooltip(useHTML = TRUE,
-                 formatter= JS("function() {return (this.point.name + '<span style=\"color: this.point.color\"></br>y: <b>' + this.point.y + '</b> </br> x: <b>' +
-   this.point.x + '</b></span></br><img src=\"'+ this.point.image + '\"width=\"48\" height=\"48\"/></br>');}")) %>%
+                 formatter= JS("function() {return (this.point.name + '<span style=\"color: this.point.color\"></br>x: <b>' + this.point.x + '</b> </br> y: <b>' +
+   this.point.y + '</b></span></br><img src=\"'+ this.point.image + '\"width=\"48\" height=\"48\"/></br>');}")) %>%
       hc_add_theme(hc_theme_chalk())
   })
-  observeEvent(input$foo, {print(input$foo)})
+  #observeEvent(input$foo, {print(input$foo)})
   
   output$main_plot <- renderHighchart({
-    if ((is.null(input$main_datatable_rows_selected) & is.null(input$main_datatable_cells_selected)) | input$use_tiers_data) {
+     #browser()
+    if ((!input$roster_dt & is.null(input$main_datatable_rows_selected)) | (input$roster_dt & is.null(input$main_datatable_cells_selected))  | input$use_tiers_data) {
+      #browser()
       highlighted_point = NULL
     } else if (!is.null(input$main_datatable_rows_selected) & !input$roster_dt) {
       highlighted_point = select(reactive_dataset()[input$main_datatable_rows_selected, ], x= xvar, y = yvar, color, name, image) 
@@ -75,23 +76,10 @@ server <- function(input, output, session) {
     
   })
   
-  id_row = eventReactive( input$main_datatable_cells_selected, {
-    isolate({
-      if (!is.null(input$main_datatable_cells_selected)) {
-        num_chars =  nrow(reactive_dataset())
-        row = (input$main_datatable_cells_selected[1])*12
-        col = ifelse(input$main_datatable_cells_selected[1] != floor(num_chars/12), input$main_datatable_cells_selected[2] + 1,  input$main_datatable_cells_selected[2] + 1 - ceiling((12 - num_chars %% 12) / 2) )
-        row+col
-      } else {
-        NULL
-      }
-    })
-  })
   
   ## DATA TABLE
   output$main_datatable <- renderDataTable({
     if (input$roster_dt) {
-      #browser() #reactive_dataset() %>% select(name, roster_image) %>% mutate(roster_image = sapply(roster_image, img_uri))
       roster_images = arrange(reactive_dataset(), id)$roster_image
       rem = length(roster_images) %% 12
       padded_images = c(roster_images[1:(length(roster_images)-rem)], rep('data/black_square.png', ceiling((12-rem)/2)), roster_images[(length(roster_images)-rem+1):length(roster_images)],  rep('data/black_square.png', floor((12-rem)/2)))
@@ -126,33 +114,58 @@ server <- function(input, output, session) {
   
   tableProxy <-  dataTableProxy("main_datatable")
   
+  # observeEvent(input$roster_dt, {
+  #   browser()
+  # })
+  # 
   observeEvent(input$main_plot_click, {
-    
+    #browser()
     if (input$main_plot_click$series == 'Series 1') {
+      #browser()
       if (input$roster_dt) {
-        #browser()
+        
         charId = which(arrange(reactive_dataset(), id)$name == input$main_plot_click$name)
-        row = ceiling(charId/12)
+        row = floor(charId/12) 
         # add black padding if final row
-        col = ifelse(row != ceiling(nrow(reactive_dataset()) / 12), (charId-1)%%12, (charId-1)%%12 + ceiling((12 - (nrow(reactive_dataset()) %% 12)) / 2))
+        col = ifelse(row != floor(nrow(reactive_dataset()) / 12), (charId-1)%%12, (charId-1)%%12 + ceiling((12 - (nrow(reactive_dataset()) %% 12)) / 2))
         
         tableProxy %>%
+          #selectRows(NULL) %>%
+          #selectCells(NULL) %>% 
           selectCells(matrix(c(row, col), ncol = 2))
       } else {
         charId = which(reactive_dataset()$name == input$main_plot_click$name)
         
         tableProxy %>% 
+          #selectRows(NULL) %>%
+          #selectCells(NULL) %>% 
           selectRows(charId) %>%
           selectPage( (charId-1) %/% number_of_rows_dt + 1)
       }
       
     } else {
       if (input$roster_dt) {
+        browser()
+        tableProxy %>%
+          selectCells(NULL)
       } else {
         tableProxy %>%
-          selectRows('')
+          selectRows(NULL)
       }
     }
+  })
+  
+  id_row = eventReactive( input$main_datatable_cells_selected, {
+    isolate({
+      if (!is.null(input$main_datatable_cells_selected)) {
+        num_chars =  nrow(reactive_dataset())
+        row = (input$main_datatable_cells_selected[1])*12
+        col = ifelse(input$main_datatable_cells_selected[1] != floor(num_chars/12), input$main_datatable_cells_selected[2] + 1,  input$main_datatable_cells_selected[2] + 1 - ceiling((12 - num_chars %% 12) / 2) )
+        row+col
+      } else {
+        NULL
+      }
+    })
   })
   
   ## SOUND
@@ -183,19 +196,16 @@ server <- function(input, output, session) {
   #   )
   # }, ignoreNULL = FALSE)
   
-  
+
   observeEvent({input$main_datatable_rows_selected
     input$main_datatable_cells_selected}, {
-      if (!input$use_tiers_data){
-        if (!is.null(input$main_datatable_rows_selected) & is.null(input$main_datatable_cells_selected)) {
-          browser()
+      if (!input$use_tiers_data & ((input$roster_dt & !is.null(input$main_datatable_cells_selected)) | (!input$roster_dt & !is.null(input$main_datatable_rows_selected)))) {
+
+        if (!input$roster_dt) {
           sound_row = char_list[char_list$app_names == reactive_dataset()[input$main_datatable_rows_selected,]$name,]
-        } else if (!is.null(input$main_datatable_cells_selected)) {
-          browser()
-          sound_row = char_list[char_list$app_names == arrange(reactive_dataset(), id)[id_row(),]$name, ]
         } else {
-          print('ERROR with data tables!')
-        }
+          sound_row = char_list[char_list$app_names == arrange(reactive_dataset(), id)[id_row(),]$name, ]
+        } 
         available_sounds = select_if(sound_row[, input$enabled_sounds, drop = FALSE], function(x) x!="")
         
         if (ncol(available_sounds) > 0) {
@@ -212,28 +222,35 @@ server <- function(input, output, session) {
   
   ## EASTER
   all_keys <- reactiveVal("")
+  octave <- reactiveVal('4')
   
   output$last_key = renderText({
     chr(input$keyseq)
   })
   
   observeEvent(input$keyseq,{
+    # Add to all keys
     all_keys(paste0(all_keys(), chr(input$keyseq))[1:min(length(all_keys()), 100)])
-  })
-  
-  observeEvent(input$keyseq,{
-    #browser()
+    
+    last_key = tolower(chr(input$keyseq))
+    # Change octave if it was a number
+    if (last_key %in% as.character(3:5)) {
+      octave(last_key)
+    }
+    # Play last key if it was a note
+    if (last_key %in% letters[1:7]) {
     insertUI(selector = "#playsound",
              where = "afterEnd",
-             ui = tags$audio(src = paste0("audio/easter/", tolower(chr(input$keyseq)),"5.mp3"), type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
+             ui = tags$audio(src = paste0("audio/easter/", last_key, octave(), ".mp3"), type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
     )
+    }
   })
   
   
   observeEvent(input$hide_me, {
     #browser()
     isolate({
-      if (str_detect(tolower(all_keys()), 'defdfcbabga#agfgagfgedefdfcbabda#agfgagfgegcd')) {
+      if (str_detect(tolower(all_keys()), 'defdf4?5?cbab3?4?g4?5?a#a3?4?gfg4?5?a3?4?gfgedefdf4?5?cbabda#a3?4?gfg4?5?a3?4?gfgeg4?5?cd')) {
         insertUI(selector = "#playsound",
                  where = "afterEnd",
                  ui = tags$audio(src = "audio/easter/full_ult_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
@@ -243,7 +260,7 @@ server <- function(input, output, session) {
                  where = "afterEnd",
                  ui = tags$audio(src = "audio/easter/full_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
         )
-      } else if (str_detect(tolower(all_keys()), 'defdfcbabg')) {
+      } else if (str_detect(tolower(all_keys()), 'defdf4?5?cbab3?4?g')) {
         insertUI(selector = "#playsound",
                  where = "afterEnd",
                  ui = tags$audio(src = "audio/easter/ult_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
