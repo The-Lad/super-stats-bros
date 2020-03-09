@@ -22,7 +22,7 @@ Click button to swap x and y axes
 Possible character select sound in background
 On Omitted, show Char+gang as POKEMON TRAINER, and PopoNana as ICs
 Add other songs to keyboard easter egg
- 
+Moving colour background for roster DT as in https://shiny.rstudio.com/articles/communicating-with-js.html using Shiny.addCustomMessageHandler
 
 # POSSIBLES
 Very slight jitter 
