@@ -81,10 +81,9 @@ server <- function(input, output, session) {
   dt_click_val <- reactiveVal(NULL)
   observeEvent(list(input$main_dt_row_last_clicked,
                     input$roster_dt_cell_clicked,
-                    input$main_plot_clicked,
                     input$use_roster_dt), {
-                      browser()
-                      if (input$use_roster_dt & (!is.null(input$roster_dt_cell_clicked$row) | input$main_plot_clicked)) {
+                      #browser()
+                      if (input$use_roster_dt & !is.null(input$roster_dt_cell_clicked$row)) {
                         #browser()
                         nchars = nrow(reactive_dataset())
                         row = input$roster_dt_cell_clicked$row
@@ -98,13 +97,25 @@ server <- function(input, output, session) {
                       } else {
                         dt_click_val(input$main_dt_row_last_clicked)
                       }
-                      # row = (input$roster_dt_cells_selected[1])*12
-                      #       col = ifelse(input$roster_dt_cells_selected[1] != floor(num_chars/12), input$main_dt_cells_selected[2] + 1,  input$main_dt_cells_selected[2] + 1 - ceiling((12 - num_chars %% 12) / 2) )
                     }) #, ignoreInit = TRUE, ignoreNULL = TRUE)
+                      
+  observeEvent(input$main_plot_click, {
+    if (input$use_roster_dt) {
+      charId = which(arrange(reactive_dataset(), id)$name == input$main_plot_click$name)
+      #browser()
+      row = ceiling(charId/12) 
+      col = (charId-1)%%12
+      dt_click_val((row-1)*12+(col+1))
+    } else {
+      charId_main = which(reactive_dataset()$name == input$main_plot_click$name)
+      dt_click_val(charId_main)
+    }
+  })                      
+                
   ## DATA TABLE
   output$main_dt <- renderDataTable({
     datatable(reactive_dataset() %>% select(name, !!input$xvar_input := 'xvar', !!input$yvar_input := 'yvar'),
-              callback = JS(""),selection = "single", rownames = FALSE, options = list(dom = 'tfp'))
+             selection = "single", rownames = FALSE, options = list(dom = 'tfp'))
   }, server = TRUE)
   
   tableProxy <-  dataTableProxy("main_dt")
@@ -145,19 +156,17 @@ server <- function(input, output, session) {
       row = floor(charId/12) 
       # add black padding if final row
       col = ifelse(row != floor(nrow(reactive_dataset()) / 12), (charId-1)%%12, (charId-1)%%12 + ceiling((12 - (nrow(reactive_dataset()) %% 12)) / 2))
-      
+      browser()
       rostertableProxy %>%
         #selectRows(NULL) %>%
         #selectCells(NULL) %>% 
         selectCells(matrix(c(row, col), ncol = 2))
       
-      charId_main = which(reactive_dataset()$name == input$main_plot_click$name)
-      
       tableProxy %>% 
         #selectRows(NULL) %>%
         #selectCells(NULL) %>% 
-        selectRows(charId_main) %>%
-        selectPage( (charId_main-1) %/% number_of_rows_dt + 1)
+        selectRows(dt_click_val()) %>%
+        selectPage( (dt_click_val()-1) %/% number_of_rows_dt + 1)
       
     } else {
       tableProxy %>%
@@ -218,7 +227,7 @@ server <- function(input, output, session) {
     if (!input$use_tiers_data & !is.null(dt_click_val())) {
         #((input$use_roster_dt & !is.null(input$roster_dt_cell_clicked$row)) | (!input$use_roster_dt & !is.null(input$main_dt_rows_selected))
         if (!input$use_roster_dt) {
-          sound_row = char_list[char_list$app_names == reactive_dataset()[input$main_dt_rows_selected,]$name,]
+          sound_row = char_list[char_list$app_names == reactive_dataset()[dt_click_val(),]$name,]
         } else {
           #browser() 
           sound_row = char_list[char_list$app_names == arrange(reactive_dataset(), id)[dt_click_val(),]$name, ]
