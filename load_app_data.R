@@ -6,6 +6,10 @@ incomplete_cols =  c('crawl', 'jumpsquat', 'gravity', 'tether', 'wall_cling', 'w
 all_plot_vars = setdiff(setdiff(colnames(char_stats), incomplete_cols), c('character', 'id', 'color', 'series_color', 'icon_path',  'icon_url_path', 'roster_image'))
 img_uri <- function(x) { sprintf('<img src="%s" height = 28px width = 50px"/>', knitr::image_uri(x)) }
 
+colors <- rainbow(40, alpha = NULL)
+# Mirror the rainbow, so we cycle back and forth smoothly
+colors <- c(colors, rev(colors[c(-1, -40)]))
+
 changeCellColor <- function(){
   #row = ceiling(ind/12)
   #col = ifelse(ind %% 12 == 0, 12, ind %% 12)

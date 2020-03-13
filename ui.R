@@ -48,7 +48,7 @@ ui<- dashboardPage(
     #   tags$style(HTML("#hide_me{background-color:'#526980'}"))
     # ),
     actionButton('hide_me', label = '',
-    style = "color: black;
+                 style = "color: black;
                      background-color: #222d32;
                      position: relative;
                      height: 4px;
@@ -56,27 +56,39 @@ ui<- dashboardPage(
                      border-radius: 0px;
                      border-width: 0px")
   ), 
-dashboardBody(
-  box(
-    highchartOutput('main_plot'),
-    textOutput('omitted'),
-    background = "green",
-    width = 12
+  dashboardBody(
+    box(
+      highchartOutput('main_plot'),
+      textOutput('omitted'),
+      background = "green",
+      width = 12
+    ),
+    box(
+      conditionalPanel(
+        condition = "input.use_roster_dt == true",
+        dataTableOutput('roster_dt'),
+        tags$script(HTML("
+      Shiny.addCustomMessageHandler('background-color', 
+      function(e) {
+       if($('#roster_dt table').DataTable) {
+       for (let i=0; i < e.row.length; i++) {
+        for (let j=0; j < e.col.length; j++) {
+          $('#roster_dt table').DataTable().cell(e.row[i], e.col[j]).node().style.backgroundColor = e.value
+        }
+       }
+       }
+      });
+    "))
+      ),
+      conditionalPanel(
+        condition = "input.use_roster_dt == false",
+        dataTableOutput('main_dt')
+      ),
+      width = 12
+    )
   ),
-  box(
-    conditionalPanel(
-      condition = "input.use_roster_dt == true",
-    dataTableOutput('roster_dt')
-    ),
-    conditionalPanel(
-      condition = "input.use_roster_dt == false",
-      dataTableOutput('main_dt')
-    ),
-    width = 12
-  )
-),
-# tags$head(
-#   includeCSS("fonts.css")
-# ),
-shinyjs::useShinyjs()
+  # tags$head(
+  #   includeCSS("fonts.css")
+  # ),
+  shinyjs::useShinyjs()
 )
