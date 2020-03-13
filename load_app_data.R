@@ -4,11 +4,12 @@ source('data_constants.R')
 char_stats = readRDS('data/dont_commit/char_stats.rds')
 incomplete_cols =  c('crawl', 'jumpsquat', 'gravity', 'tether', 'wall_cling', 'wall_jump', 'hard_landing_lag', 'fh_air_time', 'max_jumps', 'sh_air_time', 'soft_landing_lag')
 all_plot_vars = setdiff(setdiff(colnames(char_stats), incomplete_cols), c('character', 'id', 'color', 'series_color', 'icon_path',  'icon_url_path', 'roster_image'))
-img_uri <- function(x) { sprintf('<img src="%s" height = 28px width = 50px"/>', knitr::image_uri(x)) }
-
-colors <- rainbow(40, alpha = NULL)
-# Mirror the rainbow, so we cycle back and forth smoothly
-colors <- c(colors, rev(colors[c(-1, -40)]))
+pokemon = c('Charizard', 'Squirtle', 'Ivysaur')
+ice_climbers = c('Popo', 'Nana')
+#colors <- rainbow(40, alpha = NULL)
+colors <- sprintf('rgb(%s,%s,%s)', floor(seq(75, 230, length.out = 20)), floor(seq(0, 230, length.out = 20)), floor(seq(130, 250, length.out = 20)))
+# Mirror the colors, so we cycle back and forth smoothly
+colors <- c(colors, rev(colors[c(-1, -20)]))
 
 changeCellColor <- function(){
   #row = ceiling(ind/12)

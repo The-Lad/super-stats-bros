@@ -3,14 +3,13 @@ TODO
 Predict tier list model
 Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 Commented code
-Fix normal dt sounds
 Integrate get_sounds.R into compile_data.R
+react to omitted to remove characters from selected
 
 Fix switching issues
 Add color backgrounds
 
 # WANT
-!!!Display data table as Ultimate character select screen!!!
 Fix non-ability to repeat two keyseq in a row
 Tier list model functionality in app
 Data table can jump to tier icon for tiers
@@ -18,11 +17,10 @@ READY, GO on start, GAME on stop. HARD
 Time range for tournament_win_freq - MATT
 Lower hover-off range -SHARN
 Improve the hovering. Maybe make it so that as you hover over a point it slightly increases - SHARN 
-Click button to swap x and y axes
 Possible character select sound in background
 On Omitted, show Char+gang as POKEMON TRAINER, and PopoNana as ICs
-Add other songs to keyboard easter egg
-Moving colour background for roster DT as in https://shiny.rstudio.com/articles/communicating-with-js.html using Shiny.addCustomMessageHandler
+Add other songs to keyboard easter egg https://www.youtube.com/watch?v=6MWl7wZtFKI
+
 
 # POSSIBLES
 Very slight jitter 
@@ -33,6 +31,10 @@ Series fighters comparison (plotting points in clusters, plotting mean & sds of 
 Top Trumps style game
 
 # DONE
+Click button to swap x and y axes
+!!!Display data table as Ultimate character select screen!!!
+Moving colour background for roster DT as in https://shiny.rstudio.com/articles/communicating-with-js.html using Shiny.addCustomMessageHandler
+Fix normal dt sounds
 Pacman's ultimate sound file
 Fix click on bottom row of roster dt
 Add sounds to roster

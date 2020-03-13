@@ -1,31 +1,46 @@
 # Server functions
 server <- function(input, output, session) {
   ## SIDEBAR
+  plot_yvar <- reactiveVal(NULL)
+  plot_xvar <- reactiveVal(NULL)
+  observeEvent(input$yvar_input, {
+    plot_yvar(input$yvar_input)
+  })
+  observeEvent(input$xvar_input, {
+    plot_xvar(input$xvar_input)
+  })
+  observeEvent(input$swap_xy, {
+    temp <- plot_yvar()
+    plot_yvar(plot_xvar())
+    plot_xvar(temp)
+  })
+  
   observeEvent(input$use_tiers_data, {
     toggle('tier_color_scheme')
   })
   
   # Prevent duplicate names
-  observeEvent(input$yvar_input, {
-    updateSelectInput(session, 'xvar_input', choices = setdiff(all_plot_vars, c('tier', input$yvar_input)),selected = input$xvar_input)
+  observeEvent(plot_yvar(), {
+    updateSelectInput(session, 'xvar_input', choices = setdiff(all_plot_vars, c('tier', plot_yvar())),selected = plot_xvar())
   })
-  observeEvent(input$xvar_input, {
-    updateSelectInput(session, 'yvar_input', choices = setdiff(all_plot_vars, c('tier', input$xvar_input)), selected = input$yvar_input)
+  observeEvent(plot_xvar(), {
+    updateSelectInput(session, 'yvar_input', choices = setdiff(all_plot_vars, c('tier', plot_xvar())), selected = plot_yvar())
   })
+
   
   ## DATA
   reactive_dataset <- reactive({
     if(input$use_tiers_data){
       tier_stats %>% 
-        select(name = tier, yvar = !!paste0(input$yvar_input, '_mean'), yvar_sd = !!paste0(input$yvar_input, '_sd'),
-               xvar = !!paste0(input$xvar_input, '_mean'), xvar_sd = !!paste0(input$xvar_input, '_sd')) %>% 
+        select(name = tier, yvar = !!paste0(plot_yvar(), '_mean'), yvar_sd = !!paste0(plot_yvar(), '_sd'),
+               xvar = !!paste0( plot_xvar(), '_mean'), xvar_sd = !!paste0(plot_xvar(), '_sd')) %>% 
         arrange(name) %>% 
         mutate(color = if(input$tier_color_scheme) {tier_cols_dg} else {tier_cols_bg}, image = tier_images) %>%
         do(., if(input$img_markers) {mutate(., marker = purrr::map(image, ~ list(symbol = sprintf("url(%s)", .x), width = 32, height = 32)))} else {.}) 
       
     } else {
       char_stats %>%
-        select(name = character, id, image = icon_url_path, roster_image, color, xvar = input$xvar_input, yvar = input$yvar_input) %>%  
+        select(name = character, id, image = icon_url_path, roster_image, color, xvar = plot_xvar(), yvar = plot_yvar()) %>%  
         #group := ifelse(input$use_tiers_data, !!'tier', one_of('you_get_nothing_you_lose'))) %>%
         filter_all(all_vars(!is.na(.))) %>%
         mutate(color = if(input$img_markers) {sapply(color, function(x) paste0('rgba(', str_flatten(as.vector(col2rgb(x)), ','), ',0.3)')) } else {toupper(color)}) %>%
@@ -38,9 +53,20 @@ server <- function(input, output, session) {
   
   ## PLOT
   output$omitted <- renderText({
-    input$yvar_input
-    input$xvar_input
-    if (!input$use_tiers_data) paste('Omitted:', str_flatten(setdiff(char_list$app_names, reactive_dataset()$name), ', '))
+    plot_yvar()
+    plot_xvar()
+   
+    raw_text = if (!input$use_tiers_data) paste('Omitted:', str_flatten(setdiff(char_list$app_names, reactive_dataset()$name), ', '))
+    
+    if (str_detect(raw_text, str_flatten(pokemon, ', ')) {
+    #   if (str_detect(raw_text, 'Pokemon Trainer')) {
+    #     browser()
+    #     raw_text = paste0(str_extract(raw_text, '.*Pokemon Trainer'), ':{', str_flatten(pokemon, ', '), '}', str_split(raw_text, str_flatten(pokemon, ', '))[[1]][2])
+    #   } else {
+    #     browser()
+    #   }
+    # }
+    # raw_text
   })
   
   main_hc <- reactive({
@@ -109,9 +135,6 @@ server <- function(input, output, session) {
                         }
                       }
                     }, ignoreInit = TRUE)#, ignoreNULL = TRUE)
-  # observeEvent(input$roster_dt_cells_selected,
-  #              browser()
-  # )
   
   observeEvent(input$main_plot_click, {
     if (input$main_plot_click$series == 'Series 1') {
@@ -144,7 +167,7 @@ server <- function(input, output, session) {
     roster_images = arrange(reactive_dataset(), id)$roster_image
     rem = length(roster_images) %% 12
     padded_images = c(roster_images[1:(length(roster_images)-rem)], rep('data/black_square.png', ceiling((12-rem)/2)), roster_images[(length(roster_images)-rem+1):length(roster_images)],  rep('data/black_square.png', floor((12-rem)/2)))
-    images = sapply(padded_images, img_uri)
+    images = sapply(padded_images, img_uri())
     template = as.data.frame(matrix(images, ncol = 12, byrow = TRUE)) 
     
     col_len = 12
@@ -206,11 +229,11 @@ server <- function(input, output, session) {
     }
   })
   
-  pos <- 0L
+  pos <- 0L:11L
   nextColor <- function() {
     # Choose the next color, wrapping around to the start if necessary
     pos <<- (pos %% length(colors)) + 1L
-    colors[[pos]]
+    colors[pos]
   }
   
   observe({
@@ -265,7 +288,16 @@ server <- function(input, output, session) {
   #            ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['GO']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
   #   )
   # }, ignoreNULL = FALSE)
+  height = reactiveVal(28)
+  width = reactiveVal(50)
+  observeEvent(input$dimension, {
+    height(input$dimension[1] / 40)
+    width(input$dimension[2] / 10)
+  })
   
+  img_uri <- reactiveVal(
+    function(x) sprintf(paste0('<img src="%s" height =', height(),'px width = ', width(),'px"/>'), knitr::image_uri(x)) 
+  )
   
   observeEvent({dt_click_val()}, {
     
