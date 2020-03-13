@@ -80,7 +80,12 @@ ui<- dashboardPage(
     box(
       conditionalPanel(
         condition = "input.use_roster_dt == true",
-        dataTableOutput('roster_dt'),
+        tags$style(paste0(
+          '#test {
+    cursor: url(css/clickhand.ani), url(css/Mouse3.cur), crosshair;
+    }')
+        ),
+        div(id='test', dataTableOutput('roster_dt')),
         tags$script(HTML("
       Shiny.addCustomMessageHandler('background-color', 
       function(e) {

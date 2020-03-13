@@ -56,6 +56,14 @@ callback2 <- function(last_row, cols, colors){
   )
 }
 
+callback3 <- function(){
+  c(
+    "function(nRow) {
+    $('td:eq(5)', nRow).css('cursor', 'pointer');
+    }"
+  )
+}
+
 select_callback <- #" var table = $('#main_datatable');
 "$('#main_datatable').on( 'select.dt', function ( e, dt, type, indexes ) {
      var c_row = table.cell(indexes).index().row

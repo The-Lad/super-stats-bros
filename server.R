@@ -58,7 +58,7 @@ server <- function(input, output, session) {
    
     raw_text = if (!input$use_tiers_data) paste('Omitted:', str_flatten(setdiff(char_list$app_names, reactive_dataset()$name), ', '))
     
-    if (str_detect(raw_text, str_flatten(pokemon, ', ')) {
+    #if (str_detect(raw_text, str_flatten(pokemon, ', ')) {
     #   if (str_detect(raw_text, 'Pokemon Trainer')) {
     #     browser()
     #     raw_text = paste0(str_extract(raw_text, '.*Pokemon Trainer'), ':{', str_flatten(pokemon, ', '), '}', str_split(raw_text, str_flatten(pokemon, ', '))[[1]][2])
@@ -66,7 +66,7 @@ server <- function(input, output, session) {
     #     browser()
     #   }
     # }
-    # raw_text
+     raw_text
   })
   
   main_hc <- reactive({
@@ -74,8 +74,8 @@ server <- function(input, output, session) {
            hcaes(y = yvar, x = xvar, color = color, name = name, image =  image)) %>% 
       hc_legend(enabled = FALSE) %>%
       hc_chart(zoomType = 'xy') %>%
-      hc_xAxis(title = list(text = input$xvar_input), minRange = diff(range(reactive_dataset()$xvar)/50)) %>%
-      hc_yAxis(title = list(text = input$yvar_input), minRange = diff(range(reactive_dataset()$yvar)/50)) %>%
+      hc_xAxis(title = list(text = plot_xvar()), minRange = diff(range(reactive_dataset()$xvar)/50)) %>%
+      hc_yAxis(title = list(text = plot_yvar()), minRange = diff(range(reactive_dataset()$yvar)/50)) %>%
       hc_plotOptions(series = list(allowPointSelect= FALSE)) %>%
       hc_add_event_point(event = "click") %>%
       #hc_add_event_point(event = "unselect") %>%
@@ -155,7 +155,7 @@ server <- function(input, output, session) {
   
   ## DATA TABLE
   output$main_dt <- renderDataTable({
-    datatable(reactive_dataset() %>% select(name, !!input$xvar_input := 'xvar', !!input$yvar_input := 'yvar'),
+    datatable(reactive_dataset() %>% select(name, !!plot_xvar() := 'xvar', !!plot_yvar() := 'yvar'),
               selection = "single", rownames = FALSE, options = list(dom = 'tfp'))
   }, server = TRUE)
   
@@ -186,15 +186,16 @@ server <- function(input, output, session) {
                            #callback = JS(select_callback),
                            options = list(dom = 't', ordering = FALSE#, select = list(items = 'cell', style ='single')
                                           ,columnDefs = list(list(visible=FALSE, targets = ncol(template)-1))
-                           )             
+                                        
                            #, selector = "td:not(.notselectable)"),
-                           #rowCallback = JS(callback(length(padded_images)/12, black_boxes(), colors)))
+                           #,rowCallback = JS(callback3())
+                           )
     )%>% 
       formatStyle(c(1:dim(template)[2]-1), border = '3px solid #000')  %>% 
       formatStyle(columns = black_boxes(), valueColumns = 'final_row',  #target = 'cell',#`pointer-events`= "none", cursor = "default")
                   #backgroundColor = styleEqual(c(0, 1), c('gray', 'yellow')),
-                  `pointer-events`= styleEqual(c(0,1), c("auto" , "none")), #`pointer-events`=
-                  cursor= styleEqual(c(0,1), c('auto', "default"))) # cursor= "default"#
+                  `pointer-events`= styleEqual(c(0,1), c("auto" , "none"))) #`pointer-events`=
+                  #cursor= styleEqual(c(0,1), c('auto', "default"))) # cursor= "default"#
     
     
     output_dt
@@ -291,8 +292,8 @@ server <- function(input, output, session) {
   height = reactiveVal(28)
   width = reactiveVal(50)
   observeEvent(input$dimension, {
-    height(input$dimension[1] / 40)
-    width(input$dimension[2] / 10)
+    width(input$dimension[1] / 25)
+    height(input$dimension[2] / 25)
   })
   
   img_uri <- reactiveVal(
@@ -331,21 +332,31 @@ server <- function(input, output, session) {
     chr(input$keyseq)
   })
   
+  hash_before <- reactiveVal(FALSE)
+  
   observeEvent(input$keyseq,{
     # Add to all keys
     all_keys(paste0(all_keys(), chr(input$keyseq))[1:min(length(all_keys()), 100)])
     
     last_key = tolower(chr(input$keyseq))
-    # Change octave if it was a number
-    if (last_key %in% as.character(3:5)) {
-      octave(last_key)
-    }
-    # Play last key if it was a note
+    
     if (last_key %in% letters[1:7]) {
+      # Play last key if it was a note
       insertUI(selector = "#playsound",
                where = "afterEnd",
-               ui = tags$audio(src = paste0("audio/easter/", last_key, octave(), ".mp3"), type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
+               ui = tags$audio(src = paste0("audio/easter/", last_key, ifelse(hash_before(), '-', ''), octave(), ".mp3"), type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
       )
+      hash_before(FALSE)
+    } else if (last_key %in% as.character(3:5)) { 
+      # Change octave if it was a number
+      octave(last_key)
+    } else {
+      hash_before(FALSE)
+    }
+
+    if (last_key == "#") {
+      # Set for sharp note
+      hash_before(TRUE)
     }
   })
   
@@ -353,20 +364,21 @@ server <- function(input, output, session) {
   observeEvent(input$hide_me, {
     #browser()
     isolate({
-      if (str_detect(tolower(all_keys()), 'defdf4?5?cbab3?4?g4?5?a#a3?4?gfg4?5?a3?4?gfgedefdf4?5?cbabda#a3?4?gfg4?5?a3?4?gfgeg4?5?cd')) {
+      if (str_detect(tolower(all_keys()), 'defdf4?5?cbab3?4?g4?5?#a.{1}a3?4?gfg4?5?a3?4?gfgedefdf4?5?cbabd#a.{1}a3?4?gfg4?5?a3?4?gfgeg4?5?cd')) {
         insertUI(selector = "#playsound",
                  where = "afterEnd",
                  ui = tags$audio(src = "audio/easter/full_ult_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
-        )
-      } else if (str_detect(tolower(all_keys()), 'agababcdcbgefgagecd')) {
-        insertUI(selector = "#playsound",
-                 where = "afterEnd",
-                 ui = tags$audio(src = "audio/easter/full_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
         )
       } else if (str_detect(tolower(all_keys()), 'defdf4?5?cbab3?4?g')) {
         insertUI(selector = "#playsound",
                  where = "afterEnd",
                  ui = tags$audio(src = "audio/easter/ult_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
+        )
+      } else if (str_detect(tolower(all_keys()), 'b(3#)|(#3)f4b#fb#f5a(4#)|(#4)geb.{1}b#cdbd#fe')) {
+         
+        insertUI(selector = "#playsound",
+                 where = "afterEnd",
+                 ui = tags$audio(src = "audio/easter/melee_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
         )
       }
     })
