@@ -336,7 +336,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$keyseq,{
     # Add to all keys
-    all_keys(paste0(all_keys(), chr(input$keyseq))[1:min(length(all_keys()), 100)])
+    all_keys(tail(paste0(all_keys(), chr(input$keyseq)), 100))
     
     last_key = tolower(chr(input$keyseq))
     

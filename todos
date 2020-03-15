@@ -5,9 +5,7 @@ Fix error when clicking on same point as before, but after updating plot - its b
 Commented code
 Integrate get_sounds.R into compile_data.R
 react to omitted to remove characters from selected
-
-Fix switching issues
-Add color backgrounds
+Fix tier data
 
 # WANT
 Fix non-ability to repeat two keyseq in a row
@@ -31,6 +29,10 @@ Series fighters comparison (plotting points in clusters, plotting mean & sds of 
 Top Trumps style game
 
 # DONE
+Fix switching issues
+Add color backgrounds
+Melee piano
+Custom cursor for Roster DT
 Click button to swap x and y axes
 !!!Display data table as Ultimate character select screen!!!
 Moving colour background for roster DT as in https://shiny.rstudio.com/articles/communicating-with-js.html using Shiny.addCustomMessageHandler
