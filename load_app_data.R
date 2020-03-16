@@ -6,106 +6,12 @@ incomplete_cols =  c('crawl', 'jumpsquat', 'gravity', 'tether', 'wall_cling', 'w
 all_plot_vars = setdiff(setdiff(colnames(char_stats), incomplete_cols), c('character', 'id', 'color', 'series_color', 'icon_path',  'icon_url_path', 'roster_image'))
 pokemon = c('Charizard', 'Squirtle', 'Ivysaur')
 ice_climbers = c('Popo', 'Nana')
-#colors <- rainbow(40, alpha = NULL)
+
+# DATA TABLES
 colors <- sprintf('rgb(%s,%s,%s)', floor(seq(75, 230, length.out = 20)), floor(seq(0, 230, length.out = 20)), floor(seq(130, 250, length.out = 20)))
-# Mirror the colors, so we cycle back and forth smoothly
-colors <- c(colors, rev(colors[c(-1, -20)]))
-
-changeCellColor <- function(){
-  #row = ceiling(ind/12)
-  #col = ifelse(ind %% 12 == 0, 12, ind %% 12)
-  #   c(
-  #     "function(row, data, num, index){",
-  #     sprintf("  if(index == %d){", row-1),
-  #     sprintf("    $('td:eq(' + %d + ')', row)", col-1),
-  #     "    .css({'background-color': 'orange'});",
-  #     "  }",
-  #     "}"  
-  #   )
-  # }
-  
-  c(
-    "function(row, data, num, index){",
-    sprintf("    $('td:eq(' + %d + ')', row).css({'background-color': 'orange'})", 1:12),
-    "}"  
-  )
-}
-
-
-callback <- function(last_row, cols, colors){
-  c(
-    "function(row, data, num, index){",
-    sprintf("if(index == %d){", last_row-1),
-    sprintf("    $('td:eq(' + %d + ')', row).addClass('notselectable');", cols-1),
-    #sprintf("    $('td:eq(' + %d + ')', row).css({'background-color': ' + %s + ');", 0:(length(colors)-1), colors),
-    "  }",
-    #"$(row).addClass('notselectable')",
-    "}"
-  )
-}
-
-callback2 <- function(last_row, cols, colors){
-  c(
-    "table.on('click', 'td', function() {",
-    sprintf("if(index == %d){", last_row-1),
-    sprintf("    $('td:eq(' + %d + ')', row).removeClass('selected');", cols-1),
-    #sprintf("    $('td:eq(' + %d + ')', row).css({'background-color': ' + %s + ');", 0:(length(colors)-1), colors),
-    "  }",
-    #"$(row).addClass('notselectable')",
-    "}"
-  )
-}
-
-callback3 <- function(){
-  c(
-    "function(nRow) {
-    $('td:eq(5)', nRow).css('cursor', 'pointer');
-    }"
-  )
-}
-
-select_callback <- #" var table = $('#main_datatable');
-"$('#main_datatable').on( 'select.dt', function ( e, dt, type, indexes ) {
-     var c_row = table.cell(indexes).index().row
-      var c_col = table.cell(indexes).index().column;
-       Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col]);
-                             
-} );"
-
-select_callback2 <- #" var table = $('#main_datatable');
-  "$('#main_datatable').on( 'select.dt', function ( e, dt, type, indexes ) {
-     var c_row = table.cell().index().row;
-      var c_col = table.cell().index().column;
-       Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col], {priority: 'event'});
-                             
-} );"
-
-
-
- click_callback <- "table.on( 'click.dt', 'td', function () {
-                              var c_row = table.cell(this).index().row;
-                              var c_col = table.cell(this).index().column;
-                              Shiny.setInputValue('main_datatable_cells_selected', [c_row, c_col], {priority: 'event'});
-                              })"
-
-
-#c(
-#   c(
-#  # "var id = $(main_datatable.table().node()).closest('.datatables').attr('id');",
-#   "table.on('click', 'tbody', function(){",
-#   "  setTimeout(function(){",
-#   "    var indexes = table.cells({selected:true}).indexes();",
-#   "    Shiny.setInputValue('main_datatable_cells_selected', indexes);",
-#   "  }, 0);",
-#   "});"
-# )
-
-
+colors <- c(colors, rev(colors[c(-1, -20)])) # Mirror the colors to cycle back and forth smoothly
 number_of_rows_dt = 10
 
-#207 211 243
-#228 200 65
-#249 245 183
 # TIER STUFF
 if (anyNA(filter(select(char_stats, character, all_plot_vars, -initial_dash), !is.na(tier) & !character %in% c('Byleth', 'Pokemon Trainer')))) stop('Unexpected missing values in char_list')
 tier_cols_dg = c("#6B4804","#7F5515", '#907554' , "#CD7F32", "#C0C0C0", "#FFD700") # poop brown
@@ -121,7 +27,7 @@ tier_images = c(
   'https://static-cdn.jtvnw.net/emoticons/v1/300654653/1.0', #daHeck 
   'https://static-cdn.jtvnw.net/emoticons/v1/1431656/1.0', #expand
   'https://static-cdn.jtvnw.net/emoticons/v1/140967/1.0', # hbox
-  ' https://static-cdn.jtvnw.net/emoticons/v1/300067189/1.0' #rip hboxKrey 'https://static-cdn.jtvnw.net/emoticons/v1/120195/1.0'
+  'https://static-cdn.jtvnw.net/emoticons/v1/300067189/1.0' #rip hboxKrey 'https://static-cdn.jtvnw.net/emoticons/v1/120195/1.0'
 )
 
 tier_stats = char_stats %>%
@@ -135,52 +41,3 @@ tier_stats = char_stats %>%
 chr <- function(n) { rawToChar(as.raw(n)) }
 
 #hchart(tier_stats, hcaes(y = usage_mean, x = tier), type = 'scatter') %>% hc_add_series(data = mutate(tier_stats, high = usage_mean + usage_sd, low = usage_mean - usage_sd), type = "errorbar",color = "red", stemWidth = 1,  whiskerLength = 1)
-
-
-
-# ### GRAVEYARD ### #
-# js_searchbox = "function() {
-#             var chart = this,
-#             points = chart.series[0].points,
-#             searchInput = document.getElementById('input');
-#             
-#             function changeMatches() {
-#               points.forEach(function(point) {
-#                 point.update({
-#                   color: null
-#                 })
-#                 if (point.name === searchInput.value) {
-#                   
-#                   point.update({
-#                     color: 'red'
-#                   })
-#                   chart.tooltip.refresh(point)
-#                 }
-#               })
-#             }
-#             
-#             searchInput.addEventListener('keyup', changeMatches);
-# }"
-# 
-# 
-# jscode <- "shinyjs.init = function() {
-# 
-# var signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
-#   backgroundColor: 'rgba(255, 255, 255, 0)',
-#   penColor: 'rgb(0, 0, 0)'
-# });
-# var saveButton = document.getElementById('save');
-# var cancelButton = document.getElementById('clear');
-# 
-# saveButton.addEventListener('click', function (event) {
-#   var data = signaturePad.toDataURL('image/png');
-# 
-# // Send data to server instead...
-#   window.open(data);
-# });
-# 
-# cancelButton.addEventListener('click', function (event) {
-#   signaturePad.clear();
-# });
-# 
-# }"

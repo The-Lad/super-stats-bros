@@ -46,12 +46,13 @@ ui<- dashboardPage(
     actionBttn('swap_xy', 'Swap x and y axes'),
     prettyCheckbox('img_markers', label = 'Images as markers?', shape = 'curve'),
     prettyCheckbox('use_tiers_data', label = "Group by tier?", shape = 'curve'),
-    switchInput(
-      inputId = "tier_color_scheme",
-      onLabel = 'dumpster \nto glory',
-      offLabel = 'boring',
-      label = "<i class=\"fa fa-grin-hearts\"></i>"
-    ),
+    hidden(
+      switchInput(
+        inputId = "tier_color_scheme",
+        onLabel = 'dumpster \nto glory',
+        offLabel = 'boring',
+        label = "<i class=\"fa fa-grin-hearts\"></i>"
+      )),
     prettyCheckbox('playsound', label = 'click 4 a surprise'),
     prettyCheckbox('use_roster_dt', label = 'Roster table?', value = TRUE),
     prettyCheckboxGroup('enabled_sounds', label = 'Use which sounds? (Older preferred)', shape = 'curve',
@@ -79,7 +80,7 @@ ui<- dashboardPage(
     ),
     box(
       conditionalPanel(
-        condition = "input.use_roster_dt == true",
+        condition = "output.show_roster_dt == true",
         tags$style(paste0(
           '#test {
     cursor: url(css/clickhand.ani), url(css/Mouse3.cur), crosshair;
@@ -102,7 +103,7 @@ ui<- dashboardPage(
     "))
       ),
       conditionalPanel(
-        condition = "input.use_roster_dt == false",
+        condition = "output.show_roster_dt == false",
         dataTableOutput('main_dt')
       ),
       width = 12

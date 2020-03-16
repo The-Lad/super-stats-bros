@@ -17,7 +17,20 @@ server <- function(input, output, session) {
   
   observeEvent(input$use_tiers_data, {
     toggle('tier_color_scheme')
+
+    if (input$use_tiers_data) {
+      roster_dt_on(FALSE)
+      disable('use_roster_dt')
+    } else {
+      roster_dt_on(input$use_roster_dt)
+      enable('use_roster_dt')
+    }
+  }, ignoreInit = TRUE)
+  
+  output$show_roster_dt <- reactive({
+    roster_dt_on()
   })
+  outputOptions(output, "show_roster_dt", suspendWhenHidden = FALSE)
   
   # Prevent duplicate names
   observeEvent(plot_yvar(), {
@@ -26,7 +39,7 @@ server <- function(input, output, session) {
   observeEvent(plot_xvar(), {
     updateSelectInput(session, 'yvar_input', choices = setdiff(all_plot_vars, c('tier', plot_xvar())), selected = plot_yvar())
   })
-
+  
   
   ## DATA
   reactive_dataset <- reactive({
@@ -41,7 +54,6 @@ server <- function(input, output, session) {
     } else {
       char_stats %>%
         select(name = character, id, image = icon_url_path, roster_image, color, xvar = plot_xvar(), yvar = plot_yvar()) %>%  
-        #group := ifelse(input$use_tiers_data, !!'tier', one_of('you_get_nothing_you_lose'))) %>%
         filter_all(all_vars(!is.na(.))) %>%
         mutate(color = if(input$img_markers) {sapply(color, function(x) paste0('rgba(', str_flatten(as.vector(col2rgb(x)), ','), ',0.3)')) } else {toupper(color)}) %>%
         do(., if(input$img_markers) {mutate(., marker = purrr::map(image, ~ list(symbol = sprintf("url(%s)", .x), width = 32, height = 32)))} else {.}) %>% 
@@ -55,18 +67,18 @@ server <- function(input, output, session) {
   output$omitted <- renderText({
     plot_yvar()
     plot_xvar()
-   
+    
     raw_text = if (!input$use_tiers_data) paste('Omitted:', str_flatten(setdiff(char_list$app_names, reactive_dataset()$name), ', '))
     
     #if (str_detect(raw_text, str_flatten(pokemon, ', ')) {
     #   if (str_detect(raw_text, 'Pokemon Trainer')) {
-    #     browser()
+    #     
     #     raw_text = paste0(str_extract(raw_text, '.*Pokemon Trainer'), ':{', str_flatten(pokemon, ', '), '}', str_split(raw_text, str_flatten(pokemon, ', '))[[1]][2])
     #   } else {
-    #     browser()
+    #     
     #   }
     # }
-     raw_text
+    raw_text
   })
   
   main_hc <- reactive({
@@ -78,44 +90,97 @@ server <- function(input, output, session) {
       hc_yAxis(title = list(text = plot_yvar()), minRange = diff(range(reactive_dataset()$yvar)/50)) %>%
       hc_plotOptions(series = list(allowPointSelect= FALSE)) %>%
       hc_add_event_point(event = "click") %>%
-      #hc_add_event_point(event = "unselect") %>%
       hc_tooltip(useHTML = TRUE,
                  formatter= JS("function() {return (this.point.name + '<span style=\"color: this.point.color\"></br>x: <b>' + this.point.x + '</b> </br> y: <b>' +
    this.point.y + '</b></span></br><img src=\"'+ this.point.image + '\"width=\"48\" height=\"48\"/></br>');}")) %>%
       hc_add_theme(hc_theme_chalk())
   })
-  #observeEvent(input$foo, {print(input$foo)})
   
   output$main_plot <- renderHighchart({
+    
     if (is.null(dt_click_val())| input$use_tiers_data) {
-      #browser()
       highlighted_point = NULL
-    } else if (!input$use_roster_dt) {
-      #browser()
+    } else if (!roster_dt_on()) {
       highlighted_point = select(reactive_dataset()[dt_click_val(), ], x= xvar, y = yvar, color, name, image) 
     } else {   
-      #browser()
       highlighted_point =  select(arrange(reactive_dataset(), id)[dt_click_val(),] , x= xvar, y = yvar, color, name, image) # ifelse(col > 0 & (row+col) < num_chars,NULL)
     }
-    #browser()
+    
     main_hc() %>% 
       hc_add_series(data = highlighted_point, type = 'scatter', marker = list(radius = 30, lineWidth = 5, lineColor = ifelse(input$img_markers, "rgba(32,205,32, 0.3)", 'rgba(32,205,32, 1)')))
     
   })
   
+  ## DATA TABLE
+  output$main_dt <- renderDataTable({
+    datatable(reactive_dataset() %>% select(name, !!plot_xvar() := 'xvar', !!plot_yvar() := 'yvar'),
+              selection = "single", rownames = FALSE, options = list(dom = 'tfp'))
+  }, server = TRUE)
+  
+  tableProxy <-  dataTableProxy("main_dt")
+  
+  black_boxes = reactiveVal(0)
+  
+  output$roster_dt <- renderDataTable({
+    react1 = plot_yvar()
+    react2 = plot_xvar()
+    
+    isolate({
+      roster_images = arrange(reactive_dataset(), id)$roster_image
+      rem = length(roster_images) %% 12
+      padded_images = c(roster_images[1:(length(roster_images)-rem)], rep('data/black_square.png', ceiling((12-rem)/2)), roster_images[(length(roster_images)-rem+1):length(roster_images)],  rep('data/black_square.png', floor((12-rem)/2)))
+      images = sapply(padded_images, img_uri())
+      template = as.data.frame(matrix(images, ncol = 12, byrow = TRUE)) 
+      
+      col_len = 12
+      #zones = 
+      
+      colors = sprintf('rgb(%s, %s, %s)', floor(seq(207, 228, length.out = col_len)), floor(seq(211, 200, length.out = col_len)), floor(seq(243, 65, length.out = col_len)))
+      # sapply(1:length(padded_images), function(x) sapply(1:length(padded_images), function(x) 
+      black_boxes({if(rem > 0) c(1:ceiling((col_len-rem)/2), if(rem < col_len-1) ((col_len+1-floor((col_len-rem)/2)):col_len)) else {0}})
+      template$final_row = c(rep(0, nrow(template)-1), 1)
+      
+      output_dt <- datatable(template, selection = list(mode = 'single', target = 'cell'), 
+                             # = "Select", 
+                             #callback = JS(callback2(length(padded_images)/12, black_boxes, colors)),
+                             rownames = FALSE, colnames = rep("", ncol(template)), 
+                             escape = FALSE, 
+                             #callback = JS(select_callback),
+                             options = list(dom = 't', ordering = FALSE#, select = list(items = 'cell', style ='single')
+                                            ,columnDefs = list(list(visible=FALSE, targets = ncol(template)-1))
+                                            
+                                            #, selector = "td:not(.notselectable)"),
+                                            #,rowCallback = JS(callback3())
+                             )
+      )%>% 
+        formatStyle(c(1:dim(template)[2]-1), border = '3px solid #000')  %>% 
+        formatStyle(columns = black_boxes(), valueColumns = 'final_row',  #target = 'cell',#`pointer-events`= "none", cursor = "default")
+                    #backgroundColor = styleEqual(c(0, 1), c('gray', 'yellow')),
+                    `pointer-events`= styleEqual(c(0,1), c("auto" , "none"))) #`pointer-events`=
+      #cursor= styleEqual(c(0,1), c('auto', "default"))) # cursor= "default"#
+      
+      output_dt
+    })
+  })
+  roster_dt_on <- reactiveVal(FALSE)
+  observeEvent(input$use_roster_dt, {
+    roster_dt_on(!roster_dt_on())
+  })
+  rostertableProxy <-  dataTableProxy("roster_dt")
+  
   dt_click_val <- reactiveVal(NULL)
   observeEvent(list(input$main_dt_rows_selected,
                     input$roster_dt_cells_selected,
-                    input$use_roster_dt), {
-                      #browser()
-                      if (input$use_roster_dt) {
-                        #browser()
+                    roster_dt_on()), {
+                      
+                      if (roster_dt_on()) {
+                        
                         if (nrow(input$roster_dt_cells_selected) == 0) {
                           dt_click_val(NULL)
                         } else if (length(input$roster_dt_cell_clicked) != 0) {
                           if (( input$roster_dt_cell_clicked$row== input$roster_dt_cells_selected[1]) &
                               ( input$roster_dt_cell_clicked$col== input$roster_dt_cells_selected[2])) {
-                            #browser()
+                            
                             nchars = nrow(reactive_dataset())
                             row = input$roster_dt_cell_clicked$row
                             col = input$roster_dt_cell_clicked$col + 1
@@ -138,9 +203,9 @@ server <- function(input, output, session) {
   
   observeEvent(input$main_plot_click, {
     if (input$main_plot_click$series == 'Series 1') {
-      if (input$use_roster_dt) {
+      if (roster_dt_on()) {
         charId = which(arrange(reactive_dataset(), id)$name == input$main_plot_click$name)
-        #browser()
+        
         row = ceiling(charId/12) 
         col = (charId-1)%%12
         dt_click_val((row-1)*12+(col+1))
@@ -153,71 +218,21 @@ server <- function(input, output, session) {
     }
   })                      
   
-  ## DATA TABLE
-  output$main_dt <- renderDataTable({
-    datatable(reactive_dataset() %>% select(name, !!plot_xvar() := 'xvar', !!plot_yvar() := 'yvar'),
-              selection = "single", rownames = FALSE, options = list(dom = 'tfp'))
-  }, server = TRUE)
-  
-  tableProxy <-  dataTableProxy("main_dt")
-  
-  black_boxes = reactiveVal(0)
-  
-  output$roster_dt <- renderDataTable({
-    roster_images = arrange(reactive_dataset(), id)$roster_image
-    rem = length(roster_images) %% 12
-    padded_images = c(roster_images[1:(length(roster_images)-rem)], rep('data/black_square.png', ceiling((12-rem)/2)), roster_images[(length(roster_images)-rem+1):length(roster_images)],  rep('data/black_square.png', floor((12-rem)/2)))
-    images = sapply(padded_images, img_uri())
-    template = as.data.frame(matrix(images, ncol = 12, byrow = TRUE)) 
-    
-    col_len = 12
-    #zones = 
-    #browser() 
-    colors = sprintf('rgb(%s, %s, %s)', floor(seq(207, 228, length.out = col_len)), floor(seq(211, 200, length.out = col_len)), floor(seq(243, 65, length.out = col_len)))
-    # sapply(1:length(padded_images), function(x) sapply(1:length(padded_images), function(x) 
-    black_boxes({if(rem > 0) c(1:ceiling((col_len-rem)/2), if(rem < col_len-1) ((col_len+1-floor((col_len-rem)/2)):col_len)) else {0}})
-    template$final_row = c(rep(0, nrow(template)-1), 1)
-    #browser()
-    output_dt <- datatable(template, selection = list(mode = 'single', target = 'cell'), 
-                           # = "Select", 
-                           #callback = JS(callback2(length(padded_images)/12, black_boxes, colors)),
-                           rownames = FALSE, colnames = rep("", ncol(template)), 
-                           escape = FALSE, 
-                           #callback = JS(select_callback),
-                           options = list(dom = 't', ordering = FALSE#, select = list(items = 'cell', style ='single')
-                                          ,columnDefs = list(list(visible=FALSE, targets = ncol(template)-1))
-                                        
-                           #, selector = "td:not(.notselectable)"),
-                           #,rowCallback = JS(callback3())
-                           )
-    )%>% 
-      formatStyle(c(1:dim(template)[2]-1), border = '3px solid #000')  %>% 
-      formatStyle(columns = black_boxes(), valueColumns = 'final_row',  #target = 'cell',#`pointer-events`= "none", cursor = "default")
-                  #backgroundColor = styleEqual(c(0, 1), c('gray', 'yellow')),
-                  `pointer-events`= styleEqual(c(0,1), c("auto" , "none"))) #`pointer-events`=
-                  #cursor= styleEqual(c(0,1), c('auto', "default"))) # cursor= "default"#
-    
-    
-    output_dt
-  })
-  
-  rostertableProxy <-  dataTableProxy("roster_dt")
-  
   observeEvent(input$main_plot_click, {
-    #browser()
+    
     if (input$main_plot_click$series == 'Series 1') {
-      if (input$use_roster_dt) {
+      if (roster_dt_on()) {
         charId = which(arrange(reactive_dataset(), id)$name == input$main_plot_click$name)
-        row = ceiling(charId/12) 
+        row = ceiling(charId/12)
         # add black padding if final row
         col = ifelse(row != ceiling(nrow(reactive_dataset()) / 12), (charId-1)%%12, (charId-1)%%12 + ceiling((12 - (nrow(reactive_dataset()) %% 12)) / 2))
         
         rostertableProxy %>%
           selectCells(matrix(c(row, col), ncol = 2))
       } else {
-        tableProxy %>% 
+        tableProxy %>%
           #selectRows(NULL) %>%
-          #selectCells(NULL) %>% 
+          #selectCells(NULL) %>%
           selectRows(dt_click_val()) %>%
           selectPage( (dt_click_val()-1) %/% number_of_rows_dt + 1)
       }
@@ -247,20 +262,6 @@ server <- function(input, output, session) {
     # Update the color every 100 milliseconds
     invalidateLater(100)
   })
-  
-  
-  # id_row = eventReactive( input$roster_dt_cells_selected, {
-  #   isolate({
-  #     if (!is.null(input$main_dt_cells_selected)) {
-  #       num_chars =  nrow(reactive_dataset())
-  #       row = (input$roster_dt_cells_selected[1])*12
-  #       col = ifelse(input$roster_dt_cells_selected[1] != floor(num_chars/12), input$main_dt_cells_selected[2] + 1,  input$main_dt_cells_selected[2] + 1 - ceiling((12 - num_chars %% 12) / 2) )
-  #       row+col
-  #     } else {
-  #       NULL
-  #     }
-  #   })
-  # })
   
   ## SOUND
   observeEvent(input$playsound, {
@@ -303,11 +304,11 @@ server <- function(input, output, session) {
   observeEvent({dt_click_val()}, {
     
     if (!input$use_tiers_data & !is.null(dt_click_val())) {
-      #((input$use_roster_dt & !is.null(input$roster_dt_cell_clicked$row)) | (!input$use_roster_dt & !is.null(input$main_dt_rows_selected))
-      if (!input$use_roster_dt) {
+      #((roster_dt_on() & !is.null(input$roster_dt_cell_clicked$row)) | (!roster_dt_on() & !is.null(input$main_dt_rows_selected))
+      if (!roster_dt_on()) {
         sound_row = char_list[char_list$app_names == reactive_dataset()[dt_click_val(),]$name,]
       } else {
-        #browser() 
+        
         sound_row = char_list[char_list$app_names == arrange(reactive_dataset(), id)[dt_click_val(),]$name, ]
       } 
       available_sounds = select_if(sound_row[, input$enabled_sounds, drop = FALSE], function(x) x!="")
@@ -353,7 +354,7 @@ server <- function(input, output, session) {
     } else {
       hash_before(FALSE)
     }
-
+    
     if (last_key == "#") {
       # Set for sharp note
       hash_before(TRUE)
@@ -362,7 +363,7 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$hide_me, {
-    #browser()
+    
     isolate({
       if (str_detect(tolower(all_keys()), 'defdf4?5?cbab3?4?g4?5?#a.{1}a3?4?gfg4?5?a3?4?gfgedefdf4?5?cbabd#a.{1}a3?4?gfg4?5?a3?4?gfgeg4?5?cd')) {
         insertUI(selector = "#playsound",
@@ -375,7 +376,7 @@ server <- function(input, output, session) {
                  ui = tags$audio(src = "audio/easter/ult_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
         )
       } else if (str_detect(tolower(all_keys()), 'b(3#)|(#3)f4b#fb#f5a(4#)|(#4)geb.{1}b#cdbd#fe')) {
-         
+        
         insertUI(selector = "#playsound",
                  where = "afterEnd",
                  ui = tags$audio(src = "audio/easter/melee_riff.mp3", type = "audio/mp3", autoplay = NA, controls = NA, style="display:none;")
