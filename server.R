@@ -16,14 +16,25 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$use_tiers_data, {
-    toggle('tier_color_scheme')
-
+    if (!input$img_markers) {
+      toggle('tier_color_scheme')
+    }
     if (input$use_tiers_data) {
       roster_dt_on(FALSE)
       disable('use_roster_dt')
     } else {
       roster_dt_on(input$use_roster_dt)
       enable('use_roster_dt')
+    }
+  }, ignoreInit = TRUE)
+  
+  observeEvent(input$img_markers, {
+    if (input$use_tiers_data) {
+      if (input$img_markers) {
+        hide('tier_color_scheme') 
+      } else {
+        show('tier_color_scheme')
+      }
     }
   }, ignoreInit = TRUE)
   
@@ -120,12 +131,16 @@ server <- function(input, output, session) {
   tableProxy <-  dataTableProxy("main_dt")
   
   black_boxes = reactiveVal(0)
+  waitylass <- Waitress$new("#roster_dt", hide_on_render = TRUE)
   
   output$roster_dt <- renderDataTable({
     react1 = plot_yvar()
     react2 = plot_xvar()
+    react3 = height()
+    react4 = width()
     
     isolate({
+      waitylass$start()
       roster_images = arrange(reactive_dataset(), id)$roster_image
       rem = length(roster_images) %% 12
       padded_images = c(roster_images[1:(length(roster_images)-rem)], rep('data/black_square.png', ceiling((12-rem)/2)), roster_images[(length(roster_images)-rem+1):length(roster_images)],  rep('data/black_square.png', floor((12-rem)/2)))
@@ -158,8 +173,9 @@ server <- function(input, output, session) {
                     #backgroundColor = styleEqual(c(0, 1), c('gray', 'yellow')),
                     `pointer-events`= styleEqual(c(0,1), c("auto" , "none"))) #`pointer-events`=
       #cursor= styleEqual(c(0,1), c('auto', "default"))) # cursor= "default"#
-      
+      waitylass$close()
       output_dt
+      
     })
   })
   roster_dt_on <- reactiveVal(FALSE)

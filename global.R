@@ -19,6 +19,7 @@ library(stringr)
 library(shiny)
 library(shinyjs)
 library(highcharter)
+library(waiter)
 
 # conflict_prefer("filter", "dplyr")
 # conflict_prefer('dataTableOutput', 'DT')

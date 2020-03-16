@@ -1,15 +1,14 @@
 TODO
 # MUST
-Predict tier list model
 Fix error when clicking on same point as before, but after updating plot - its because it's still an 'unclick' - example: error with big circle (say, on Luigi), then hit Group by, then unhit, then hit same (ie Luigi) and grays out
 Commented code
-Integrate get_sounds.R into compile_data.R
-react to omitted to remove characters from selected
-Fix tier data
+React to omitted to remove characters from selected
+Loading circle for roster dt
+X sound when no sound available for char
 
 # WANT
+Integrate get_sounds.R into compile_data.R
 Fix non-ability to repeat two keyseq in a row
-Tier list model functionality in app
 Data table can jump to tier icon for tiers
 READY, GO on start, GAME on stop. HARD
 Time range for tournament_win_freq - MATT
@@ -21,6 +20,8 @@ Add other songs to keyboard easter egg https://www.youtube.com/watch?v=6MWl7wZtF
 
 
 # POSSIBLES
+Predict tier list model
+Tier list model functionality in app
 Very slight jitter 
 Modify get_sounds script to move files out of nested structure
 Tier list model runs and predicts on character of user's design (incl photo they add- can't use usage, tournament etc in this case)
@@ -29,6 +30,10 @@ Series fighters comparison (plotting points in clusters, plotting mean & sds of 
 Top Trumps style game
 
 # DONE
+Disable color scheme changer when images as markers
+Fluid row to get rid of black bottom
+Dashboard title (in tab)
+Fix tier data
 Fix switching issues
 Add color backgrounds
 Melee piano

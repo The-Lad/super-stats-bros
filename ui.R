@@ -1,7 +1,7 @@
 # UI functions
 ui<- dashboardPage(
   #setBackgroundColor("#FFFFFF"),
-  dashboardHeader(title = span(tags$img(
+  header = dashboardHeader(title = span(tags$img(
     src = 'img/super stats bros.png',
     title = "Title", height = "20px",
     alt = "SUPER STATS BROS"
@@ -18,7 +18,8 @@ ui<- dashboardPage(
     style = "padding-left: 0vw;"
   )
   ), 
-  dashboardSidebar(
+  
+  sidebar = dashboardSidebar(
     tags$head(tags$script('
                                 var dimension = [0, 0];
                                 $(document).on("shiny:connected", function(e) {
@@ -59,9 +60,6 @@ ui<- dashboardPage(
                         choices = c('N64' = 'n64_sounds', 'Melee' = 'melee_sounds', 'Brawl' = 'brawl_sounds', 'Smash4' = 'smash4_sounds', 'Ultimate' = 'ultimate_sounds'),
                         selected = 'ultimate_sounds'),
     textOutput('last_key'),
-    # tags$head(
-    #   tags$style(HTML("#hide_me{background-color:'#526980'}"))
-    # ),
     actionButton('hide_me', label = '',
                  style = "color: black;
                      background-color: #222d32;
@@ -71,23 +69,24 @@ ui<- dashboardPage(
                      border-radius: 0px;
                      border-width: 0px")
   ), 
-  dashboardBody(
-    box(
-      highchartOutput('main_plot'),
-      textOutput('omitted'),
-      background = "green",
-      width = 12
-    ),
-    box(
-      conditionalPanel(
-        condition = "output.show_roster_dt == true",
-        tags$style(paste0(
-          '#test {
+  body = dashboardBody(
+    fluidRow(
+      box(
+        highchartOutput('main_plot'),
+        textOutput('omitted'),
+        background = "green",
+        width = 12
+      ),
+      box(
+        conditionalPanel(
+          condition = "output.show_roster_dt == true",
+          tags$style(paste0(
+            '#test {
     cursor: url(css/clickhand.ani), url(css/Mouse3.cur), crosshair;
     }')
-        ),
-        div(id='test', dataTableOutput('roster_dt')),
-        tags$script(HTML("
+          ),
+          div(id='test', dataTableOutput('roster_dt')),
+          tags$script(HTML("
       Shiny.addCustomMessageHandler('background-color', 
       function(e) {
        if($('#roster_dt table').DataTable) {
@@ -101,16 +100,16 @@ ui<- dashboardPage(
        }
       });
     "))
-      ),
-      conditionalPanel(
-        condition = "output.show_roster_dt == false",
-        dataTableOutput('main_dt')
-      ),
-      width = 12
-    )
+        ),
+        conditionalPanel(
+          condition = "output.show_roster_dt == false",
+          dataTableOutput('main_dt')
+        ),
+        width = 12
+      )
+    ),
+    useShinyjs(),
+    use_waitress()
   ),
-  # tags$head(
-  #   includeCSS("fonts.css")
-  # ),
-  shinyjs::useShinyjs()
+  title="SUPER STATS BROS"
 )
