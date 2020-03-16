@@ -1,4 +1,0 @@
-
-tournament_win_freq = number of times major tournament winner or runner up used this character in that tournament
-
-A lot may be missing Pokemon Trainer as there are Squirtle, Ivysaur and Charizard. Fix in future
