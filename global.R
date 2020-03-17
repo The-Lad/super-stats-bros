@@ -11,13 +11,13 @@
 #suppressMessages({lapply(packages, library, character.only = TRUE)})
 
 #library(conflicted)
+library(shiny)
+library(shinyjs)
 library(shinydashboard)
 library(shinyWidgets)
 library(DT)
 library(dplyr)
 library(stringr)
-library(shiny)
-library(shinyjs)
 library(highcharter)
 library(waiter)
 
@@ -30,6 +30,7 @@ if (file.exists('data/dont_commit/char_stats.rds')) {
   source('load_app_data.R')
 } else {
   source('compile_data.R')
+  source('load_app_data.R')
 }
 
 source('ui.R')
