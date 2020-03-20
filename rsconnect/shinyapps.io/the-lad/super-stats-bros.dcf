@@ -5,6 +5,6 @@ account: the-lad
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1944094
-bundleId: 2900539
+bundleId: 2900649
 url: https://the-lad.shinyapps.io/super-stats-bros/
-when: 1584673471.81642
+when: 1584676482.34184
