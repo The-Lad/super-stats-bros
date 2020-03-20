@@ -77,16 +77,18 @@ ui<- dashboardPage(
   body = dashboardBody(
     tags$style(HTML('/* body */
       .content-wrapper, .right-side {
-        background-color: #605CA8; 
-      }')),
+        background-color: #e8c2e8
+      }')),#00C0EF;
     fluidRow(
       box(
         highchartOutput('main_plot'),
         textOutput('omitted'),
-        background = "green",
+        background = "black",
         width = 12
       ),
       box(
+        background = 'black',
+        width = 12,
         tags$img(src = 'img/choose_character.png', style = "padding-bottom: 0.5em;  display: block; margin-left: auto; margin-right: auto;"), 
         conditionalPanel(
           condition = "output.show_roster_dt == true",
@@ -114,10 +116,7 @@ ui<- dashboardPage(
         conditionalPanel(
           condition = "output.show_roster_dt == false",
           dataTableOutput('main_dt')
-        ),
-        status = 'primary',
-        background = 'purple',
-        width = 12
+        )
       )
     ),
     useShinyjs(),
@@ -126,5 +125,5 @@ ui<- dashboardPage(
   ),
   title="SUPER STATS BROS",
   
-  skin = 'green'
+  skin = 'purple'
 )
