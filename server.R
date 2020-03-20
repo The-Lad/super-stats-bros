@@ -302,6 +302,12 @@ server <- function(input, output, session) {
     )
    
   })
+  observeEvent(input$end_audio, {
+    insertUI(selector = "#playsound",
+             where = "afterEnd",
+             ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['GAME']), type = "audio/wav", autoplay = NA, controls = NA, style="display:none;")
+    )
+  })
 
   height = reactiveVal(28)
   width = reactiveVal(50)

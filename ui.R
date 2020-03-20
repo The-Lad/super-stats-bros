@@ -21,11 +21,13 @@ ui<- dashboardPage(
   sidebar = dashboardSidebar(
     tags$head(tags$script(paste0('var dimension = [0, 0];
                                 $(document).on("shiny:connected", function(e) {
-                                  Shiny.onInputChange("start_audio", 0);
+                                    Shiny.onInputChange("start_audio", 0);
                                     dimension[0] = window.innerWidth;
                                     dimension[1] = window.innerHeight;
-                                    //Shiny.onInputChange("start_audio", 1);
                                     Shiny.onInputChange("dimension", dimension);
+                                });
+                                $(document).on("shiny:disconnected", function(e) {
+                                  Shiny.onInputChange("end_audio", 0);
                                 });
                               $(window).resize(function(e) {
                                     dimension[0] = window.innerWidth;
