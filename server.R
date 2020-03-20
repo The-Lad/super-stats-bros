@@ -131,7 +131,7 @@ server <- function(input, output, session) {
   tableProxy <-  dataTableProxy("main_dt")
   
   black_boxes = reactiveVal(0)
-  waitylass <- Waitress$new("#roster_dt", hide_on_render = TRUE)
+  waitylass <- Waitress$new("#roster_dt", infinite = TRUE, hide_on_render = TRUE)
   
   output$roster_dt <- renderDataTable({
     react1 = plot_yvar()
@@ -140,7 +140,7 @@ server <- function(input, output, session) {
     react4 = width()
     
     isolate({
-      waitylass$start()
+      waitylass$start() #h4('Choosing your character...'))
       roster_images = arrange(reactive_dataset(), id)$roster_image
       rem = length(roster_images) %% 12
       padded_images = c(roster_images[1:(length(roster_images)-rem)], rep('data/black_square.png', ceiling((12-rem)/2)), roster_images[(length(roster_images)-rem+1):length(roster_images)],  rep('data/black_square.png', floor((12-rem)/2)))
@@ -173,10 +173,10 @@ server <- function(input, output, session) {
                     #backgroundColor = styleEqual(c(0, 1), c('gray', 'yellow')),
                     `pointer-events`= styleEqual(c(0,1), c("auto" , "none"))) #`pointer-events`=
       #cursor= styleEqual(c(0,1), c('auto', "default"))) # cursor= "default"#
-      waitylass$close()
-      output_dt
       
     })
+    waitylass$close()
+    output_dt
   })
   roster_dt_on <- reactiveVal(FALSE)
   observeEvent(input$use_roster_dt, {
@@ -295,17 +295,14 @@ server <- function(input, output, session) {
     
   }, ignoreInit = TRUE)
   
-  # observeEvent(input$hidden_button, {
-  #   insertUI(selector = "#hidden_button",
-  #            where = "afterEnd",
-  #            ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['READY']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
-  #   )
-  #   
-  #   insertUI(selector = "#hidden_button",
-  #            where = "afterEnd",
-  #            ui = tags$audio(src = paste0('audio/announcer/melee/', melee_bonuses['GO']), type = 'audio/wav', autoplay = TRUE, controls = NA, style="display:none;")
-  #   )
-  # }, ignoreNULL = FALSE)
+  observeEvent(input$start_audio, {
+    insertUI(selector = "#playsound",
+             where = "afterEnd",
+             ui = tags$audio(src = 'audio/easter/readygo.wav', type = "audio/wav", autoplay = NA, controls = NA, style="display:none;")
+    )
+   
+  })
+
   height = reactiveVal(28)
   width = reactiveVal(50)
   observeEvent(input$dimension, {

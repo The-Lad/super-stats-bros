@@ -15,6 +15,7 @@ library(shiny)
 library(shinyjs)
 library(shinydashboard)
 library(shinyWidgets)
+#library(shinybusy)
 library(DT)
 library(dplyr)
 library(stringr)
@@ -30,6 +31,7 @@ if (file.exists('data/dont_commit/char_stats.rds')) {
   source('load_app_data.R')
 } else {
   source('compile_data.R')
+  source('get_sounds.R')
   source('load_app_data.R')
 }
 

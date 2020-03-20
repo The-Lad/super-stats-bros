@@ -63,6 +63,13 @@ file.remove('data/dont_commit/Brawl.zip')
 file.remove('data/dont_commit/Smash4.zip')
 file.remove('data/dont_commit/Ultimate.zip')
 
+# This is just more intelligent
+require(sound)
+saveSample(appendSample(paste0('audio/announcer/melee/', melee_bonuses['READY']), 
+                        as.Sample(rep(0, 500), rate = 1000), 
+                        paste0('audio/announcer/melee/', melee_bonuses['GO'])),
+           'www/audio/easter/readygo.wav', overwrite = TRUE)
+
 # For the egg
 piano = FALSE
 if (piano) {
